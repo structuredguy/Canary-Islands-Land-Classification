@@ -209,3 +209,5 @@ __marimo__/
 
 *.png
 *.pdf
+*.duckdb
+/maps

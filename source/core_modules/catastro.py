@@ -61,6 +61,27 @@ def parse_catastro_response(data):
     return parsed
 
 
+def get_duckdb_query(file_path):
+    """Generate DuckDB query to extract catastro data from JSON file.
+
+    Args:
+        file_path: Path to the JSON file containing catastro data
+
+    Returns:
+        SQL query string for DuckDB
+    """
+    query = f"""
+SELECT
+    consulta_dnprcResult.bico.bi.idbi.rc.pc1 || consulta_dnprcResult.bico.bi.idbi.rc.pc2 AS RefCat,
+    consulta_dnprcResult.bico.bi.ldt AS Address,
+    consulta_dnprcResult.bico.bi.debi.luso AS Main_Use,
+    consulta_dnprcResult.bico.bi.debi.ant AS Year_Built,
+    consulta_dnprcResult.bico.finca.dff.ss AS Plot_Surface_m2
+FROM read_json_auto('{file_path}');
+"""
+    return query
+
+
 # %% Execution
 if __name__ == "__main__":
     # %% Configuration
