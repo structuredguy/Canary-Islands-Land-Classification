@@ -211,3 +211,4 @@ __marimo__/
 *.pdf
 *.duckdb
 /maps
+output/temp_catastro.json
