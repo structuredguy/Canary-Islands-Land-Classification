@@ -41,10 +41,10 @@ ax.set_facecolor('#f4f4f0') # Color "papel" o terreno claro
 # 2. Viales Existentes (Líneas irregulares) - Ap. 4 "Mantener estructura"
 roads_x = [10, 20, 40, 60, 80, 90]
 roads_y = [50, 52, 48, 55, 50, 48]
-ax.plot(roads_x, roads_y, color='gray', linewidth=10, alpha=0.4, capstyle='round')
+ax.plot(roads_x, roads_y, color='gray', linewidth=10, alpha=0.4, solid_capstyle='round')
 # Ramal existente
-ax.plot([40, 45], [48, 20], color='gray', linewidth=8, alpha=0.4, capstyle='round')
-ax.plot([60, 65], [55, 80], color='gray', linewidth=8, alpha=0.4, capstyle='round')
+ax.plot([40, 45], [48, 20], color='gray', linewidth=8, alpha=0.4, solid_capstyle='round')
+ax.plot([60, 65], [55, 80], color='gray', linewidth=8, alpha=0.4, solid_capstyle='round')
 
 # 3. Edificaciones Existentes (Gris Oscuro) - Base del cálculo
 # Representan la "trama consolidada"
@@ -117,7 +117,7 @@ ax.legend(handles=custom_lines, loc='lower right', framealpha=1)
 # Ajustes finales
 ax.set_xlim(0, 100)
 ax.set_ylim(0, 100)
-ax.axis('off') # Ocultar ejes de coordenadas para aspecto de plano
+ax.axis('off')  # Ocultar ejes de coordenadas para aspecto de plano
 
 plt.tight_layout()
 plt.show()
