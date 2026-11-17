@@ -1,0 +1,330 @@
+\documentclass[11pt,a4paper]{article}
+
+% ==============================================================================
+% CONFIGURACIÓN DE IDIOMA Y CODIFICACIÓN (UTF-8 Y BABEL ESPAÑOL)
+% ==============================================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish, es-tabla, es-nodecimaldot]{babel}
+
+% ==============================================================================
+% GEOMETRÍA Y DISEÑO DE PÁGINA CONCISO (ESTILO INFORME TÉCNICO / EJERCICIO)
+% ==============================================================================
+\usepackage[a4paper, top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+\usepackage{parskip} % Espaciado entre párrafos sin sangría excesiva
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% ==============================================================================
+% MATEMÁTICAS, TABLAS Y GRÁFICOS
+% ==============================================================================
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\setlist{nosep, leftmargin=1.4em, topsep=2pt}
+
+% ==============================================================================
+% CAJAS Y RESALTADOS (TCOLORBOX)
+% ==============================================================================
+\usepackage[skins, breakable]{tcolorbox}
+
+% Colores corporativos sobrios
+\definecolor{navyblue}{RGB}{24, 55, 95}
+\definecolor{darkslate}{RGB}{40, 80, 120}
+\definecolor{accentblue}{RGB}{41, 128, 185}
+\definecolor{legalgreen}{RGB}{25, 111, 61}
+\definecolor{alertred}{RGB}{146, 43, 33}
+\definecolor{boxbg}{RGB}{248, 250, 252}
+\definecolor{boxborder}{RGB}{205, 215, 225}
+
+% Estilo de cajas
+\tcbset{
+  basebox/.style={
+    enhanced,
+    colback=boxbg,
+    colframe=boxborder,
+    boxrule=0.8pt,
+    arc=2mm,
+    left=3mm, right=3mm, top=2.5mm, bottom=2.5mm
+  }
+}
+
+% ==============================================================================
+% SECCIONES COMPACTAS
+% ==============================================================================
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries\color{navyblue}}{\thesection.}{0.5em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries\color{darkslate}}{\thesubsection}{0.5em}{}
+\titleformat{\subsubsection}{\small\bfseries\color{black!80}}{\thesubsubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.3ex plus 0.4ex minus 0.2ex}{0.8ex plus 0.2ex}
+\titlespacing*{\subsection}{0pt}{1.1ex plus 0.3ex minus 0.2ex}{0.5ex plus 0.2ex}
+\titlespacing*{\subsubsection}{0pt}{0.8ex plus 0.2ex minus 0.1ex}{0.4ex plus 0.1ex}
+
+% ==============================================================================
+% HIPERVÍNCULOS
+% ==============================================================================
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=navyblue,
+  citecolor=navyblue,
+  urlcolor=accentblue
+}
+
+% ==============================================================================
+% CUERPO DEL DOCUMENTO
+% ==============================================================================
+\begin{document}
+
+% ------------------------------------------------------------------------------
+% ENCABEZADO SUPERIOR COMPACTO (SIN \maketitle CONVENCIONAL)
+% ------------------------------------------------------------------------------
+\begin{tcolorbox}[enhanced, colback=navyblue, colframe=navyblue, arc=2mm, left=4mm, right=4mm, top=3mm, bottom=3mm]
+  \textcolor{white}{\textbf{\large TAREA 3: SECTOR URBANIZABLE ORDENADO RESIDENCIAL}} \\
+  \textcolor{white!85}{\small \textbf{Legislación:} Ley 4/2017 del Suelo de Canarias~\cite{ley4_2017_canarias}, D.~183/2018 (RGE)~\cite{decreto183_2018_canarias} y TRLSRU (RDL 7/2015)~\cite{trlsru2015}} \hfill
+  \textcolor{white!90}{\small \textbf{Ajuste DNI:} Terminación en 4 ($e = 1,0\text{ m}^2\text{c}/\text{m}^2\text{s}$)}
+\end{tcolorbox}
+
+% ------------------------------------------------------------------------------
+% FICHA URBANÍSTICA Y ENUNCIADO
+% ------------------------------------------------------------------------------
+\begin{tcolorbox}[basebox, colframe=accentblue!60, colback=blue!2!white, title={\small\bfseries Ficha Urbanística y Cuestiones del Ejercicio}, coltitle=navyblue]
+  \small
+  En un \textbf{Sector Urbanizable Ordenado} de tipo residencial de \textbf{6 hectáreas}, se aplica la siguiente ficha de características:
+  \begin{itemize}
+    \item \textbf{Coeficiente de Edificabilidad base:} $0,8\text{ m}^2\text{c}/\text{m}^2\text{s}$ (ajuste por última cifra del DNI: si es par, se suma la mitad al decimal; si es impar, se resta; límites $[0,4 ; 1,2]$).
+    \item \textbf{Cesiones EL/D/I (Espacios Libres / Dotaciones / Infraestructuras):} Mínimo que establece la Ley.
+    \item \textbf{Viario a ceder:} $7.000\text{ m}^2\text{s}$. \quad \textbf{Parcela mínima:} $500\text{ m}^2\text{s}$. \quad \textbf{Porcentaje máx. ocupación:} $60\%$.
+  \end{itemize}
+  \textbf{CALCULAR:}
+  \begin{enumerate}[label=\textbf{\alph*)}]
+    \item Número máximo de parcelas lucrativas netas que corresponderían a los promotores.
+    \item Número mínimo de plantas necesarias para utilizar y agotar toda la edificabilidad disponible.
+  \end{enumerate}
+\end{tcolorbox}
+
+% ------------------------------------------------------------------------------
+% SECCIÓN: AJUSTE POR DNI
+% ------------------------------------------------------------------------------
+\subsection*{Ajuste Personalizado por DNI del Alumno}
+\begin{itemize}
+  \item \textbf{Última cifra del DNI:} \textbf{4} (número par).
+  \item \textbf{Cálculo del coeficiente ajustado:} Al ser par, se suma la mitad de la cifra ($4/2 = 2$) al decimal del coeficiente base ($0,8$):
+  \[
+    e = 0,8 + 0,2 = \mathbf{1,0\text{ m}^2\text{c}/\text{m}^2\text{s}} \quad (\text{dentro del rango reglamentario } [0,4 ; 1,2]).
+  \]
+\end{itemize}
+
+% ------------------------------------------------------------------------------
+% SECCIÓN 1: MARCO NORMATIVO Y PARÁMETROS
+% ------------------------------------------------------------------------------
+\section{Marco Normativo y Parámetros del Sector}
+
+\begin{itemize}
+  \item \textbf{Superficie total del sector ($S_{sector}$):} $6\text{ ha} = \mathbf{60.000\text{ m}^2\text{s}}$.
+  \item \textbf{Edificabilidad bruta ajustada ($e$):} $\mathbf{1,0\text{ m}^2\text{c}/\text{m}^2\text{s}}$.
+  \item \textbf{Viario público a ceder ($S_{viario}$):} $\mathbf{7.000\text{ m}^2\text{s}}$ (red viaria de cesión obligatoria y gratuita).
+  \item \textbf{Reserva legal dotacional mínima (EL/D/I):} Conforme al artículo 138.1.A.c de la Ley 4/2017 de Canarias, se exige una reserva mínima de \textbf{$40\text{ m}^2\text{s}$ por cada $100\text{ m}^2\text{c}$ de edificación} ($0,40\text{ m}^2\text{s}/\text{m}^2\text{c}$).
+  \item \textbf{Parcela mínima lucrativa:} $\mathbf{500\text{ m}^2\text{s}}$. \quad \textbf{Ocupación máxima de parcela:} $\mathbf{60\%}$ ($0,60$).
+  \item \textbf{Cesión de aprovechamiento al Ayuntamiento:} $\mathbf{10\%}$ del aprovechamiento en parcelas urbanizadas libres de cargas con destino al Patrimonio Público de Suelo (Art. 44.c Ley 4/2017 y Art. 18.1.b TRLSRU).
+\end{itemize}
+
+% ------------------------------------------------------------------------------
+% SECCIÓN 2: DESARROLLO DE CÁLCULOS URBANÍSTICOS
+% ------------------------------------------------------------------------------
+\section{Desarrollo de Cálculos Urbanísticos \texorpdfstring{($e = 1,0\text{ m}^2\text{c}/\text{m}^2\text{s}$)}{(e = 1.0 m2c/m2s)}}
+
+\subsection{A) Edificabilidad Total del Sector \texorpdfstring{($E_{total}$)}{(E total)}}
+\[
+  E_{total} = S_{sector} \times e = 60.000\text{ m}^2\text{s} \times 1,0\text{ m}^2\text{c}/\text{m}^2\text{s} = \mathbf{60.000\text{ m}^2\text{c}}
+\]
+
+\subsection{B) Cesiones Obligatorias de Suelo Dotacional Público}
+\begin{enumerate}
+  \item \textbf{Viario público:} $S_{viario} = \mathbf{7.000\text{ m}^2\text{s}}$.
+  \item \textbf{Reserva obligatoria de Espacios Libres / Dotaciones / Infraestructuras (EL/D/I):}
+  \[
+    S_{EL/D/I} = E_{total} \times 0,40\text{ m}^2\text{s}/\text{m}^2\text{c} = 60.000\text{ m}^2\text{c} \times 0,40 = \mathbf{24.000\text{ m}^2\text{s}}
+  \]
+  \item \textbf{Total suelo dotacional público a ceder gratuitamente:}
+  \[
+    S_{dotacional} = S_{viario} + S_{EL/D/I} = 7.000 + 24.000 = \mathbf{31.000\text{ m}^2\text{s}}
+  \]
+\end{enumerate}
+
+\subsection{C) Superficie Neta Lucrativa del Sector \texorpdfstring{($S_{lucrativa}$)}{(S lucrativa)}}
+\[
+  S_{lucrativa} = S_{sector} - S_{dotacional} = 60.000 - 31.000 = \mathbf{29.000\text{ m}^2\text{s}}
+\]
+\textit{Nota de comprobación:} La edificabilidad neta sobre suelo privado lucrativo asciende a $e_{neta} = \frac{60.000\text{ m}^2\text{c}}{29.000\text{ m}^2\text{s}} \approx 2,069\text{ m}^2\text{c}/\text{m}^2\text{s}$.
+
+% ------------------------------------------------------------------------------
+% SECCIÓN 3: RESPUESTAS A LAS CUESTIONES
+% ------------------------------------------------------------------------------
+\section{Respuestas a las Cuestiones del Ejercicio}
+
+\subsection{Cuestión a) Número máximo de parcelas lucrativas netas de los promotores}
+
+Para maximizar el número de parcelas resultantes, cada una debe tener la dimensión mínima autorizada de \textbf{$500\text{ m}^2\text{s}$}:
+
+\begin{enumerate}
+  \item \textbf{Reparto legal del suelo lucrativo (90\% Promotores / 10\% Ayuntamiento):}
+  \begin{itemize}
+    \item \textbf{Superficie neta de los promotores (90\%):} 
+    $S_{promotores} = 29.000\text{ m}^2\text{s} \times 0,90 = \mathbf{26.100\text{ m}^2\text{s}}$.
+    \item \textbf{Superficie neta del Ayuntamiento (10\%):} 
+    $S_{municipio} = 29.000\text{ m}^2\text{s} \times 0,10 = \mathbf{2.900\text{ m}^2\text{s}}$.
+  \end{itemize}
+
+  \item \textbf{Número máximo de parcelas independientes mínimas para los promotores:}
+  \[
+    N_{promotores} = \left\lfloor \frac{26.100\text{ m}^2\text{s}}{500\text{ m}^2\text{s/parcela}} \right\rfloor = \lfloor 52,2 \rfloor = \mathbf{52\text{ parcelas}}
+  \]
+
+  \item \textbf{Tratamiento legal del remanente del promotor ($100\text{ m}^2\text{s}$):}
+  Al constituir 52 parcelas mínimas de $500\text{ m}^2\text{s}$ ($26.000\text{ m}^2\text{s}$), se genera un resto de \textbf{$100\text{ m}^2\text{s}$} ($206,9\text{ m}^2\text{c}$) de titularidad privada. 
+  Conforme al principio de equidistribución (\textbf{Ley 4/2017, arts. 44.c y 285.1.d}; \textbf{Decreto 183/2018, art. 36.4, 36.5 y 36.8}), la parcela mínima es un límite inferior indivisible que prohíbe crear una 53ª parcela infradimensionada, pero \textbf{no impide parcelas de mayor cabida}.
+  Por ello, el remanente de $100\text{ m}^2\text{s}$ \textbf{se adiciona a las parcelas de los promotores} (promediando $501,92\text{ m}^2\text{s}$ o concentrándolo en una parcela de $600\text{ m}^2\text{s}$).
+
+  \item \textbf{Tratamiento de la cesión municipal y auditoría de adjudicación:}
+  Al Ayuntamiento le corresponden legalmente $2.900\text{ m}^2\text{s}$ ($6.000\text{ m}^2\text{c}$), es decir:
+  \[
+    \frac{2.900\text{ m}^2\text{s}}{500\text{ m}^2\text{s}} = 5,8\text{ parcelas}
+  \]
+  El municipio recibe \textbf{5 parcelas completas de $500\text{ m}^2\text{s}$ ($2.500\text{ m}^2\text{s}$) más un resto de $400\text{ m}^2\text{s}$} ($827,6\text{ m}^2\text{c}$), el cual se compensa en metálico o se unifica en una macro-parcela dotacional municipal de $2.900\text{ m}^2\text{s}$ destinada a VPO.
+  \textit{Nota jurídica:} La simple resta aritmética ($58 - 52 = 6$) es errónea e ilegal, pues adjudicaría $3.000\text{ m}^2\text{s}$ al Ayuntamiento ($10,34\%$), confiscando indebidamente $+100\text{ m}^2\text{s}$ al promotor.
+\end{enumerate}
+
+\begin{tcolorbox}[basebox, colframe=legalgreen, colback=legalgreen!5!white]
+  \textbf{\color{legalgreen} Conclusión Cuestión a):} El número máximo de parcelas lucrativas netas que corresponden a los promotores privados es de \textbf{52 parcelas independientes} (de $500\text{ m}^2\text{s}$ de base, absorbiendo el resto de $100\text{ m}^2\text{s}$).
+\end{tcolorbox}
+
+\subsection{Cuestión b) Número mínimo de plantas para agotar la edificabilidad}
+
+Para utilizar el \textbf{mínimo número de plantas}, se debe \textbf{agotar el porcentaje máximo de ocupación permitido en parcela ($60\%$)} a fin de maximizar la huella edificada en planta baja:
+
+\begin{itemize}
+  \item \textbf{Ocupación máxima en planta baja sobre suelo lucrativo:}
+  \[
+    S_{\text{ocupada, máx}} = S_{lucrativa} \times 0,60 = 29.000\text{ m}^2\text{s} \times 0,60 = \mathbf{17.400\text{ m}^2\text{s}}
+  \]
+  \item \textbf{Cálculo teórico de plantas:}
+  \[
+    N_{plantas} = \frac{E_{total}}{S_{\text{ocupada, máx}}} = \frac{60.000\text{ m}^2\text{c}}{17.400\text{ m}^2\text{s}} \approx \mathbf{3,448\text{ plantas}}
+  \]
+\end{itemize}
+
+Dado que las plantas físicas de una edificación son magnitudes discretas (enteros), $3$ plantas solo permitirían construir $3 \times 17.400 = 52.200\text{ m}^2\text{c}$, resultando insuficientes para agotar los $60.000\text{ m}^2\text{c}$. Por tanto, se requiere redondear al entero superior:
+
+\begin{tcolorbox}[basebox, colframe=navyblue, colback=navyblue!5!white]
+  \textbf{\color{navyblue} Conclusión Cuestión b):} El número mínimo de plantas necesarias es de \textbf{4 plantas} ($\text{Planta Baja} + 3\text{ plantas alzadas}$).\\
+  \small\textit{Ejemplo en parcela tipo de $500\text{ m}^2\text{s}$ (huella máx. $300\text{ m}^2\text{s}$):} Los $1.034,48\text{ m}^2\text{c}$ de techo se materializan en $\text{PB} = 300\text{ m}^2\text{c}$, $\text{P1} = 300\text{ m}^2\text{c}$, $\text{P2} = 300\text{ m}^2\text{c}$ y $\text{P3} = 134,48\text{ m}^2\text{c}$.
+\end{tcolorbox}
+
+% ------------------------------------------------------------------------------
+% SECCIÓN 4: FORMULACIÓN GENERAL PARAMETRIZADA
+% ------------------------------------------------------------------------------
+\section{Formulación General Parametrizada según Coeficiente \texorpdfstring{$e$}{e}}
+
+Para verificar el modelo con cualquier coeficiente de edificabilidad $e \in [0,4 ; 1,2]$ según la terminación de DNI:
+
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{l X l}
+  \toprule
+  \textbf{Magnitud Urbanística} & \textbf{Expresión Analítica Parametrizada} & \textbf{Valor para $e = 1,0$} \\
+  \midrule
+  Edificabilidad Total ($E_{total}$) & $60.000 \times e\text{ (m}^2\text{c)}$ & $60.000\text{ m}^2\text{c}$ \\
+  Superficie Lucrativa Neta ($S_{lucrativa}$) & $53.000 - (24.000 \times e)\text{ (m}^2\text{s)}$ & $29.000\text{ m}^2\text{s}$ \\
+  Parcelas Totales del Sector ($N_{sector}$) & $\lfloor (53.000 - 24.000 \times e) / 500 \rfloor$ & $58\text{ parcelas}$ \\
+  \textbf{Parcelas Promotores (90\%)} & $\mathbf{\lfloor 0,90 \times (53.000 - 24.000 \times e) / 500 \rfloor}$ & $\mathbf{52\text{ parcelas}}$ \\
+  \textbf{Número Mínimo de Plantas} & $\mathbf{\lceil (100.000 \times e) / (53.000 - 24.000 \times e) \rceil}$ & $\mathbf{4\text{ plantas}}$ \\
+  \bottomrule
+\end{tabularx}
+\end{center}
+
+\newpage
+% ------------------------------------------------------------------------------
+% SECCIÓN 5: DOCUMENTACIÓN GRÁFICA VECTORIAL
+% ------------------------------------------------------------------------------
+\section{Documentación Gráfica y Modelización Territorial}
+
+A continuación se integran las representaciones vectoriales del sector ordenado, diseñadas con rigor dimensional exacto conforme a la ficha urbanística y la Ley 4/2017~\cite{ley4_2017_canarias}. La modelización analítica y espacial de la reparcelación ha sido asistida mediante la suite Google Antigravity~\cite{antigravity2026}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{sector_shapes_comparison.pdf}
+  \caption{\textbf{Comparativa de morfologías de sector ($60.000\text{ m}^2\text{s}$, $e = 1,0$).} \textit{Opción A (superior):} Sector rectangular compacto ($250\text{ m} \times 240\text{ m}$) con parque dotacional continuo de $24.000\text{ m}^2\text{s}$, viario perimetral e interior ($7.000\text{ m}^2\text{s}$) y manzanas con 52 parcelas del promotor y 5 del municipio. \textit{Opción B (inferior):} Desarrollo lineal ($600\text{ m} \times 100\text{ m}$) con eje viario central de $7.000\text{ m}^2\text{s}$, dos parques terminales este y oeste ($12.000\text{ m}^2\text{s}$ cada uno) y bandas residenciales norte y sur.}
+  \label{fig:comparacion_morfologias}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{physical_vs_buildable_areas.pdf}
+  \caption{\textbf{Balances de suelo y edificación, volumetría de parcela tipo y auditoría jurídica de restos.} \textit{Panel 1:} Desglose de suelo físico frente a techo edificable. \textit{Panel 2:} Corte y distribución volumétrica en 4 plantas para agotar los $1.034,48\text{ m}^2\text{c}$ en parcela de $500\text{ m}^2\text{s}$ con ocupación del $60\%$. \textit{Panel 3:} Análisis comparativo entre la solución legal exacta y el error común de resta.}
+  \label{fig:areas_y_auditoria}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{sector_shapes_typologies.pdf}
+  \caption{\textbf{Integración completa de tipologías edificatorias, espacios verdes y cesiones municipales.} Diferenciación neta entre el parque dotacional público de cesión ($24.000\text{ m}^2\text{s}$), el viario ($7.000\text{ m}^2\text{s}$), las unifamiliares aisladas en parcela ($36.000\text{ m}^2\text{c}$), las torres plurifamiliares de VPO privada con jardines privados mancomunados ($18.000\text{ m}^2\text{c}$) y la parcela adscrita al Patrimonio Municipal de Suelo ($2.900\text{ m}^2\text{s}$ / $6.000\text{ m}^2\text{c}$).}
+  \label{fig:tipologias_integradas}
+\end{figure}
+
+\newpage
+% ------------------------------------------------------------------------------
+% SECCIÓN 6: DISCUSIÓN TÉCNICA Y CUESTIONES AVANZADAS DE PLANEAMIENTO
+% ------------------------------------------------------------------------------
+\section{Discusión Técnica y Cuestiones Avanzadas de Planeamiento y Ejecución}
+
+A raíz del análisis dimensional, tipológico y jurídico del sector, se suscitan cuatro cuestiones de praxis urbanística de notable relevancia:
+
+\subsection{1. Tratamiento de parcelas fraccionarias y remanentes: ¿Monetizar o adicionar?}
+En los proyectos de reparcelación frecuentemente surgen desajustes entre la cuota de derecho y el módulo de parcela mínima indivisible ($500\text{ m}^2\text{s}$, Art.~277.1.a Ley 4/2017~\cite{ley4_2017_canarias}):
+\begin{itemize}
+  \item \textbf{Remanente de los promotores ($100\text{ m}^2\text{s}$ / $206,9\text{ m}^2\text{c}$):} No se monetiza ni se cede a la Administración. Al ser la parcela mínima un límite inferior y no un tamaño rígido, el exceso se \textbf{adiciona directamente a las demás parcelas lucrativas privadas} (promediando $501,92\text{ m}^2\text{s}$ por parcela o concentrándolo en una parcela singular de $600\text{ m}^2\text{s}$).
+  \item \textbf{Remanente municipal del 10\% ($400\text{ m}^2\text{s}$ / $827,6\text{ m}^2\text{c}$):} Al corresponderle al Ayuntamiento $2.900\text{ m}^2\text{s}$ ($5,8$ unidades de $500\text{ m}^2\text{s}$), la ley contempla dos vías de ejecución:
+  \begin{enumerate}[label=\alph*)]
+    \item \textbf{Monetización en metálico (Arts.~44.c y 285.1.d Ley 4/2017~\cite{ley4_2017_canarias}; Art.~36.8 D.~183/2018~\cite{decreto183_2018_canarias}):} Los $400\text{ m}^2\text{s}$ que no alcanzan el mínimo legal se abonan en dinero a valor de mercado en la cuenta de liquidación provisional.
+    \item \textbf{Concentración en macro-parcela:} Se adjudica una única parcela de $2.900\text{ m}^2\text{s}$ con sus $6.000\text{ m}^2\text{c}$ íntegros para VPO pública, eliminando la generación de restos.
+    \item \textbf{Proindiviso (desaconsejado):} Aunque reglamentariamente admisible (Art.~36.8 D.~183/2018~\cite{decreto183_2018_canarias}), la copropiedad entre entes públicos y particulares introduce trabas en la gestión posterior.
+  \end{enumerate}
+  \item \textbf{Fracciones de vivienda en la reserva de VPO (40\%):} Al ser la edificabilidad una magnitud continua ($\text{m}^2\text{c}$), las fracciones al dividir entre el módulo de vivienda se gestionan modulando el mix tipológico (1, 2 y 3 dormitorios). En caso de fijarse un número rígido de unidades, rige el \textbf{redondeo al alza ($\lceil \cdot \rceil$)} por constituir la reserva un estándar mínimo inderogable (\textit{ius cogens}).
+\end{itemize}
+
+\subsection{2. Ubicación de parcelas municipales: ¿Frente al parque o retranqueadas/interiores?}
+La asignación espacial de las parcelas resultantes está regida por el principio constitucional y urbanístico de \textbf{equidistribución de beneficios y cargas}:
+\begin{itemize}
+  \item \textbf{Edificabilidad media ponderada (Art.~18.1.b TRLSRU~\cite{trlsru2015}):} El 10\% de cesión debe ser representativo de la calidad media de la actuación; el promotor no puede arrogarse unilateralmente las mejores localizaciones y relegar a la Administración a parcelas interiores o desfavorables.
+  \item \textbf{Coeficientes de localización y homogeneización (Art.~36.3 D.~183/2018~\cite{decreto183_2018_canarias}):} Las parcelas con vistas directas a parques y espacios libres tienen un valor unitario superior ($C_l > 1,0$). Consumen más \textit{Unidades de Aprovechamiento (UA)} por metro cuadrado. Si el promotor retiene toda la primera línea de parque, agota antes su derecho y debe compensar en dinero la diferencia de valor al Ayuntamiento.
+  \item \textbf{Subrogación real y proximidad a fincas de origen (Art.~285.1.c Ley 4/2017~\cite{ley4_2017_canarias}):} Entre particulares, quien aportó el suelo donde se implanta el parque ostenta prioridad legal para adjudicarse parcelas colindantes.
+\end{itemize}
+
+\subsection{3. Régimen y uso de la superficie no edificada en la última planta (Áticos)}
+En una parcela tipo de $500\text{ m}^2\text{s}$ (huella máx. $300\text{ m}^2\text{s}$), agotar los $1.034,48\text{ m}^2\text{c}$ en 4 plantas exige edificar $300\text{ m}^2\text{c}$ en PB, P1 y P2, pero únicamente \textbf{$134,48\text{ m}^2\text{c}$ en la planta 3}, liberando \textbf{$165,52\text{ m}^2$} de forjado descubierto:
+\begin{itemize}
+  \item \textbf{Cómputo urbanístico (0\% en descubiertos):} Las terrazas descubiertas, azoteas transitables y soláriums no computan edificabilidad lucrativa. Se prohíbe su cerramiento fijo permanente para evitar excesos ilegales de volumen edificado.
+  \item \textbf{Usos permitidos y fomento técnico:} Se autoriza su destino a solárium, mobiliario exterior, pérgolas bioclimáticas desmontables e instalaciones técnicas obligatorias de climatización/aerotermia y captación solar fotovoltaica y térmica (CTE DB-HE~\cite{cte2006} y DA~25ª Ley 4/2017~\cite{ley4_2017_canarias}).
+  \item \textbf{Peligro estructural de piscinas desmontables (\textit{portable pools}):} El CTE DB-SE-AE~\cite{cte2006} dimensiona las cubiertas planas para sobrecargas de uso de $1,0\text{ a }2,0\text{ kN/m}^2$ ($100\text{--}200\text{ kg/m}^2$). Dado que el agua pesa $1.000\text{ kg/m}^3$, una lámina de solo $20\text{ cm}$ agota el 100\% de la resistencia de seguridad. Una piscina de $60\text{ cm}$ de profundidad ($600\text{ kg/m}^2$) cuadruplica la sobrecarga admisible, con riesgo inminente de fisuración o colapso. Están \textbf{terminantemente prohibidas} salvo refuerzo de cálculo expreso en el proyecto de estructuras.
+\end{itemize}
+
+\subsection{4. Agrupación de la vivienda protegida (VPO 40\%) en torres: Eficiencia y huella}
+\begin{itemize}
+  \item \textbf{Cómputo en edificabilidad residencial ($\text{m}^2\text{c}$), no en parcelas:} El Art.~20.1.b del TRLSRU~\cite{trlsru2015} impone la reserva sobre el techo edificado ($24.000\text{ m}^2\text{c}$ en nuestro sector), posibilitando concentrarlo tipológicamente.
+  \item \textbf{Economía de escala y precios máximos regulados:} Promover VPO en viviendas unifamiliares aisladas en lotes de $500\text{ m}^2\text{s}$ es económicamente inviable ante los módulos de precio tasado. Agrupar la VPO en torres de 5 a 6 plantas ($B+4$ / $B+5$) permite optimizar cimentaciones, cubiertas y núcleos de ascensor comunes.
+  \item \textbf{Reducción de huella y preservación ambiental:} Frente a los $8.000\text{ m}^2\text{s}$ de huella que exigirían 3 plantas, elevar a 5 plantas reduce la ocupación a $\approx 4.800\text{ m}^2\text{s}$ ($< 39\%$), liberando más del $60\%$ de la parcela para una gran plaza y jardín comunitario mancomunado.
+  \item \textbf{Inconfundibilidad jurídica:} El jardín mancomunado del bloque plurifamiliar es \textbf{propiedad privada comunitaria} (\textit{propiedad horizontal}), de acceso exclusivo a los copropietarios. \textbf{En ningún caso computa ni sustituye} a los $24.000\text{ m}^2\text{s}$ de \textbf{Espacios Libres Dotacionales Públicos (EL/D/I)}, que constituyen dominio público inalienable abierto a toda la población (Art.~138 Ley 4/2017~\cite{ley4_2017_canarias}).
+\end{itemize}
+
+% ------------------------------------------------------------------------------
+% BIBLIOGRAFÍA Y REFERENCIAS NORMATIVAS (ZOTERO BOE & AI COLLECTIONS)
+% ------------------------------------------------------------------------------
+\newpage
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

@@ -211,4 +211,15 @@ __marimo__/
 *.pdf
 *.duckdb
 /maps
-output/temp_catastro.json
+output/*
+/bin
+
+*.jpg
+*.svg
+*.jpeg
+img/*
+
+*.js
+*.html
+*.css   
+zotero_local_key.json

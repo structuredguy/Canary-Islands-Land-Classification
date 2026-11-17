@@ -1,0 +1,72 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[margin=10mm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+
+\pagestyle{empty}
+
+% Define custom colors matching your categories
+\definecolor{catblue}{RGB}{20, 80, 160}
+\definecolor{catgreen}{RGB}{30, 130, 70}
+
+\begin{document}
+
+\centering
+{\Large \bfseries Programa de Participación Ciudadana} \\[1ex]
+{\small Gerencia Municipal de Urbanismo --- Santa Cruz de Tenerife}
+
+\vspace{4mm}
+
+% ==========================================
+% CATEGORY 1: Graphic Left, Callout Right
+% ==========================================
+\resizebox{\textwidth}{!}{%
+  \begin{minipage}{\textwidth}
+    \begin{minipage}[c]{0.52\textwidth}
+      % Replace with your exported category 1 file
+      \includegraphics[width=\linewidth]{img/category_1_movilidad.pdf} 
+    \end{minipage}\hfill
+    \begin{minipage}[c]{0.45\textwidth}
+      \begin{tcolorbox}[colframe=catblue, colback=catblue!5, title=1. Movilidad y Accesibilidad]
+        \small
+        \begin{itemize}\leftmargin=12pt \itemsep=2pt
+          \item Afecciones zona de contacto PRUG Anaga
+          \item Aparcamientos cerca Hospital Residencia / Edificación en altura
+          \item Peatonalización de centros urbanos \& Nuevas centralidades
+          \item Red de Carriles Bici \& Carriles bus preferentes
+        \end{itemize}
+      \end{tcolorbox}
+    \end{minipage}
+  \end{minipage}%
+}
+
+\vspace{3mm}
+
+% ==========================================
+% CATEGORY 2: Callout Left, Graphic Right (Interleaved)
+% ==========================================
+\resizebox{\textwidth}{!}{%
+  \begin{minipage}{\textwidth}
+    \begin{minipage}[c]{0.45\textwidth}
+      \begin{tcolorbox}[colframe=catgreen, colback=catgreen!5, title=2. Varios y Desarrollo Sostenible]
+        \small
+        \begin{itemize}\leftmargin=12pt \itemsep=2pt
+          \item Conservar estilo y calidad de vida en el Suroeste
+          \item Preservar idiosincrasia de El Sobradillo
+          \item Descentralizar Consejerías GobCan / Evitar uso homogéneo del centro
+        \end{itemize}
+      \end{tcolorbox}
+    \end{minipage}\hfill
+    \begin{minipage}[c]{0.52\textwidth}
+      % Replace with your exported category 2 file
+      \includegraphics[width=\linewidth]{img/category_2_sostenible.pdf}
+    \end{minipage}
+  \end{minipage}%
+}
+
+% ==========================================
+% CATEGORY 3, 4, 5... (Repeat interleaved pattern below)
+% ==========================================
+
+\end{document}

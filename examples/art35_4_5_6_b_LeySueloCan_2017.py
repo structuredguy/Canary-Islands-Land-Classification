@@ -120,4 +120,5 @@ ax.set_ylim(0, 100)
 ax.axis('off')  # Ocultar ejes de coordenadas para aspecto de plano
 
 plt.tight_layout()
+plt.savefig('../img/art35_4_5_6_b_LeySueloCan_2017.png', dpi=300)
 plt.show()

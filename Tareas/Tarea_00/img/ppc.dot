@@ -1,0 +1,56 @@
+digraph ParticipacionCiudadana {
+    // Configuración general
+    rankdir=LR;
+    node [shape=box, style="rounded,filled", fontname="Helvetica"];
+    edge [color="#666666"];
+
+    // Nodo Central
+    PPC [label="Programa de Participación\nCiudadana", fillcolor="#2b7b8e", fontcolor="white", shape=ellipse];
+
+    // Áreas Temáticas (Centro)
+    Movilidad [label="Movilidad y\nAccesibilidad", fillcolor="#00a896", fontcolor="white"];
+    EspacioLibre [label="Espacio libre\npúblico", fillcolor="#00a896", fontcolor="white"];
+    Dotaciones [label="Dotaciones, Eq.\ne Infraestructuras", fillcolor="#00a896", fontcolor="white"];
+    Patrimonio [label="Patrimonio\ncultural", fillcolor="#00a896", fontcolor="white"];
+    Sostenible [label="Desarrollo\nsostenible", fillcolor="#00a896", fontcolor="white"];
+
+    PPC -> {Movilidad EspacioLibre Dotaciones Patrimonio Sostenible};
+
+    // Colores de competencia
+    // Ayuntamiento: #00b4d8 (Azul claro)
+    // Cabildo: #7b2cbf (Morado)
+    // Plan Estratégico: #a7c957 (Verde claro)
+    // PGO: #48cae4 (Cian)
+
+    // Nodos: Movilidad
+    M_Cab1 [label="Transporte público nocturno", fillcolor="#7b2cbf", fontcolor="white"];
+    M_Cab2 [label="No a la Vía Exterior", fillcolor="#7b2cbf", fontcolor="white"];
+    M_Ayu1 [label="Restringir aparcamientos\nen el centro", fillcolor="#00b4d8"];
+    M_Ayu2 [label="Ciudad para el peatón", fillcolor="#00b4d8"];
+    
+    Movilidad -> {M_Cab1 M_Cab2 M_Ayu1 M_Ayu2};
+
+    // Nodos: Espacio Libre
+    E_Ayu1 [label="Rutas deportivas\niluminadas", fillcolor="#00b4d8"];
+    E_Ayu2 [label="Apertura al mar\nen todo el municipio", fillcolor="#00b4d8"];
+    
+    EspacioLibre -> {E_Ayu1 E_Ayu2};
+
+    // Nodos: Dotaciones
+    D_Ayu1 [label="Centro de Salud\nen el Suroeste", fillcolor="#00b4d8"];
+    D_Ayu2 [label="Mercadillo del\nAgricultor", fillcolor="#00b4d8"];
+    
+    Dotaciones -> {D_Ayu1 D_Ayu2};
+
+    // Nodos: Patrimonio
+    P_Ayu1 [label="Protección del\npatrimonio inmaterial", fillcolor="#00b4d8"];
+    P_Plan1 [label="Ayudas a la\nRehabilitación Edificios", fillcolor="#a7c957"];
+    
+    Patrimonio -> {P_Ayu1 P_Plan1};
+
+    // Nodos: Sostenible
+    S_Ayu1 [label="Sistemas bio urbanos\ncalles orientadas", fillcolor="#00b4d8"];
+    S_Plan1 [label="Lucha contra\nCambio Climático", fillcolor="#a7c957"];
+    
+    Sostenible -> {S_Ayu1 S_Plan1};
+}
