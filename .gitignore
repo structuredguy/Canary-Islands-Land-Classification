@@ -223,3 +223,6 @@ img/*
 *.html
 *.css   
 zotero_local_key.json
+
+*.gh
+*.3dm
