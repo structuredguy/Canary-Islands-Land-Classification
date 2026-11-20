@@ -1,0 +1,133 @@
+digraph Tarea4_Presentation {
+    graph [
+        rankdir=TB,
+        fontname="DejaVu Sans",
+        fontsize=11,
+        bgcolor="white",
+        pad="0.2",
+        nodesep="0.28",
+        ranksep="0.38",
+        splines=true,
+        compound=true
+    ];
+    node [
+        shape=box,
+        style="rounded,filled",
+        fontname="DejaVu Sans",
+        fontsize=10,
+        margin="0.14,0.09",
+        penwidth=1.4
+    ];
+    edge [
+        fontname="DejaVu Sans",
+        fontsize=8.5,
+        penwidth=1.4
+    ];
+
+    // Root Master Document
+    master [
+        label="master.tex\nTarea 4: Canary Sector Optimization\n(BCR | Gross/Net FAR | Law | Economics)",
+        fillcolor="#0F172A",
+        fontcolor="white",
+        color="#0F172A",
+        fontsize=11
+    ];
+
+    // --- Row 1 Left: Section 1 ---
+    subgraph cluster_s1 {
+        label="Section 1: Statutory Core";
+        style="rounded,filled";
+        fillcolor="#EFF6FF";
+        color="#3B82F6";
+        fontcolor="#1E3A8A";
+
+        sec1 [label="sec1_statutory_model.tex\nMass-Balance & S1-S4", fillcolor="#2563EB", fontcolor="white", color="#1D4ED8"];
+        sub1_1 [label="sub1_1_sector_specs.tex\n6 ha, 10% Roads, 0.45 Ces.\nBCR & FAR Glossary [fig1]", fillcolor="white", color="#60A5FA", fontcolor="#0F172A"];
+        sub1_2 [label="sub1_2_scenarios_s1_s4.tex\nS1-S4 (38 vs 54 Plots)\nFloor Deficits (-19% / -55%)", fillcolor="white", color="#60A5FA", fontcolor="#0F172A"];
+        sub1_3 [label="sub1_3_two_floor_frontier.tex\nQ3 Curve: FAR_max(BCR)\n90.9% Threshold [fig2, fig3]", fillcolor="white", color="#60A5FA", fontcolor="#0F172A"];
+
+        sec1 -> sub1_1 -> sub1_2 -> sub1_3 [color="#2563EB"];
+    }
+
+    // --- Row 1 Right: Section 2 ---
+    subgraph cluster_s2 {
+        label="Section 2: Legal & Scale Reality";
+        style="rounded,filled";
+        fillcolor="#FEF2F2";
+        color="#EF4444";
+        fontcolor="#991B1B";
+
+        sec2 [label="sec2_legal_realities.tex\nLey 4/2017 & Outlets", fillcolor="#DC2626", fontcolor="white", color="#B91C1C"];
+        sub2_1 [label="sub2_1_tau_outlets.tex\nTAU vs Basements/Attics\n(Bajo Cubierta, Extra Bays)", fillcolor="white", color="#FCA5A5", fontcolor="#0F172A"];
+        sub2_2 [label="sub2_2_muni_cession.tex\n10%-15% PMS Serviced Plots\n(100% Urb Paid by Promoter)", fillcolor="white", color="#FCA5A5", fontcolor="#0F172A"];
+        sub2_3 [label="sub2_3_scale_limits.tex\nIntensive vs Extensive Scale\n(700m2 Cliffs vs Absorption)", fillcolor="white", color="#FCA5A5", fontcolor="#0F172A"];
+
+        sec2 -> sub2_1 -> sub2_2 -> sub2_3 [color="#DC2626"];
+    }
+
+    // --- Row 2 Left: Section 3 ---
+    subgraph cluster_s3 {
+        label="Section 3: CAD & Solvers";
+        style="rounded,filled";
+        fillcolor="#F0FDF4";
+        color="#22C55E";
+        fontcolor="#166534";
+
+        sec3 [label="sec3_cad_and_solvers.tex\nRhino -> SciPy Pipeline", fillcolor="#16A34A", fontcolor="white", color="#15803D"];
+        sub3_1 [label="sub3_1_rhino_galapagos.tex\nRhino 8 + GH + Galapagos\n3D Massing (.gh / .3dm)", fillcolor="white", color="#86EFAC", fontcolor="#0F172A"];
+        sub3_2 [label="sub3_2_scipy_engine.tex\nSLSQP & Diff. Evolution\nClean Interior Peak [fig4]", fillcolor="white", color="#86EFAC", fontcolor="#0F172A"];
+
+        sec3 -> sub3_1 -> sub3_2 [color="#16A34A"];
+    }
+
+    // --- Row 2 Right: Section 4 ---
+    subgraph cluster_s4 {
+        label="Section 4: Market & Cost Physics";
+        style="rounded,filled";
+        fillcolor="#FFFBEB";
+        color="#F59E0B";
+        fontcolor="#92400E";
+
+        sec4 [label="sec4_market_economics.tex\nProfit, Risk & Priors", fillcolor="#D97706", fontcolor="white", color="#B45309"];
+        sub4_1 [label="sub4_1_quantile_reg.tex\nNon-Cross Logistic QR\nEquivariance & CVaR25 [fig5]", fillcolor="white", color="#FCD34D", fontcolor="#0F172A"];
+        sub4_2 [label="sub4_2_unified_cost.tex\nUnified Physical Build Cost\n(+Garage >70% BCR) [fig6]", fillcolor="white", color="#FCD34D", fontcolor="#0F172A"];
+        sub4_3 [label="sub4_3_bayesian_gp.tex\nDerivative-Informed GP\n(Comps + Slope Intuition)", fillcolor="white", color="#FCD34D", fontcolor="#0F172A"];
+
+        sec4 -> sub4_1 -> sub4_2 -> sub4_3 [color="#D97706"];
+    }
+
+    // --- Row 3 Bottom: Section 5 ---
+    subgraph cluster_s5 {
+        label="Section 5: Mixed VPO Synthesis";
+        style="rounded,filled";
+        fillcolor="#F5F3FF";
+        color="#8B5CF6";
+        fontcolor="#5B21B6";
+
+        sec5 [label="sec5_mixed_vpo_synthesis.tex\n40% VPO + Market Split", fillcolor="#7C3AED", fontcolor="white", color="#6D28D9"];
+        sub5_1 [label="sub5_1_decoupled_frontier.tex\n3D Space (FAR, BCR_M, BCR_V)\nVPO Reserved on m2t", fillcolor="white", color="#C4B5FD", fontcolor="#0F172A"];
+        sub5_2 [label="sub5_2_vpo_2f_vs_5f.tex\nStrict 2F (44.7M) vs 5F Towers\n(47.1M w/ Garage) [fig7]", fillcolor="white", color="#C4B5FD", fontcolor="#0F172A"];
+
+        sec5 -> sub5_1 -> sub5_2 [color="#7C3AED"];
+    }
+
+    // Master Spine Edges + Vertical 2-Column Wrapping for Mobile Portrait
+    master -> sec1 [color="#0F172A", penwidth=1.7];
+    master -> sec2 [color="#0F172A", penwidth=1.7];
+    sub1_3 -> sec3 [style=invis];
+    sub2_3 -> sec4 [style=invis];
+    sub3_2 -> sec5 [style=invis];
+    sub4_3 -> sec5 [style=invis];
+
+    master -> sec3 [color="#0F172A", penwidth=1.3, constraint=false];
+    master -> sec4 [color="#0F172A", penwidth=1.3, constraint=false];
+    master -> sec5 [color="#0F172A", penwidth=1.3, constraint=false];
+
+    // Important Side Jumps (Dashed Cross-Links)
+    edge [style=dashed, constraint=false, penwidth=1.5];
+    sub1_2 -> sub2_1 [color="#DC2626", fontcolor="#B91C1C", label="  Deficit\n  Outlets"];
+    sub1_3 -> sub3_1 [color="#16A34A", fontcolor="#15803D", label="  Pareto\n  Geometry"];
+    sub3_2 -> sub4_1 [color="#D97706", fontcolor="#B45309", label="  DE + Risk\n  Objective"];
+    sub2_2 -> sub5_1 [color="#7C3AED", fontcolor="#6D28D9", label="  10% PMS +\n  40% VPO"];
+    sub4_2 -> sub5_2 [color="#0284C7", fontcolor="#0369A1", label="  Unified\n  Garage Cost"];
+}

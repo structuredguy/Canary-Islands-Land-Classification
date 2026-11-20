@@ -1,0 +1,12 @@
+title: Canary Islands Urban Sector Analysis (Tarea 4)
+description: Statutory mass-balance, Canary urban law nuances, market quartile economics, and mixed VPO optimization.
+theme: jekyll-theme-primer
+markdown: kramdown
+plugins:
+  - jekyll-relative-links
+relative_links:
+  enabled: true
+  collections: true
+kramdown:
+  input: GFM
+  math_engine: mathjax

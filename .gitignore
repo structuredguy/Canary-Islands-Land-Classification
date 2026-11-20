@@ -226,3 +226,12 @@ zotero_local_key.json
 
 *.gh
 *.3dm
+
+# Exceptions for GitHub Pages working draft (HTML custom head + Tarea 4 SVG figures)
+!_includes/head-custom.html
+!Tareas/Tarea_4/fig1_problem_and_scenarios.svg
+!Tareas/Tarea_4/fig2_feasible_space_2floors.svg
+!Tareas/Tarea_4/fig3_discrete_and_deficits.svg
+!Tareas/Tarea_4/fig5_quantile_profit_opt.svg
+!Tareas/Tarea_4/fig6_cost_curve_sensitivity.svg
+!Tareas/Tarea_4/fig7_vpo_mixed_opt.svg
