@@ -20,6 +20,7 @@ and generates fig4_octopus_pareto_front.svg.
 
 import base64
 import io
+import json
 import math
 import os
 import re
@@ -38,17 +39,73 @@ from System.Drawing import PointF, RectangleF
 clr.AddReference(r"C:\Program Files\Rhino 8\Plug-ins\Grasshopper\GH_IO.dll")
 from GH_IO.Serialization import GH_Archive
 
-OUT_DIR = os.path.dirname(os.path.abspath(__file__))
-GALAPAGOS_GH = os.path.join(OUT_DIR, "tarea4_galapagos.gh")
+LANG = os.environ.get("PLOT_LANG", "EN")  # Toggle "EN" / "ES"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUT_DIR = os.environ.get("PLOT_OUT_DIR", SCRIPT_DIR)
+GALAPAGOS_GH = os.path.join(SCRIPT_DIR, "tarea4_galapagos.gh")
 EXAMPLE_02_GH = os.path.join(
-    OUT_DIR,
+    SCRIPT_DIR,
     "Octopus 0.4",
     "Examples",
     "Octopus Original Multi-Objective Optimization",
     "02_twoObjectivesAndHardConstraint.gh",
 )
-SVM_GH = os.path.join(OUT_DIR, "01_Octopus_Supervised_SVM.gh")
-OUT_OCTOPUS_GH = os.path.join(OUT_DIR, "tarea4_octopus_pareto.gh")
+SVM_GH = os.path.join(SCRIPT_DIR, "01_Octopus_Supervised_SVM.gh")
+OUT_OCTOPUS_GH = os.path.join(SCRIPT_DIR, "tarea4_octopus_pareto.gh")
+
+LABELS_EN_JSON = r"""
+{
+  "leg_pareto": "Pareto Front (Np = 2.00)",
+  "cbar": "Plot Remainder (m2s)",
+  "leg_dom": "Feasible Dominated (Np < 2)",
+  "leg_cull": "Hard Constraint Culled (Np > 2)",
+  "pt_s4": "S4 (50%, FAR=0.60)\n36.0k m2c | 54 plots",
+  "pt_s3": "S3 (90%, FAR=0.60)\n36.0k m2c | 54 plots",
+  "pt_rem": "Low-Rem Pareto\n(88.2%, FAR=0.885)\n53.1k | 43 plots (5m2 rem)",
+  "pt_peak": "Peak Yield Pareto\n(90.0%, FAR=0.895)\n53.7k | 42 plots",
+  "pt_culled": "S1/S2 (FAR=1.0)\n60.0k CULLED\n(Oct_Valid=False)",
+  "xlabel1": "Objective 2: Lot Coverage BCR (%)  [Minimize -> More Garden]",
+  "ylabel1": "Objective 1: 2-Floor Yield E_mat (x1,000 m2c)",
+  "title1": "1. Octopus Multi-Objective Pareto Front (Tarea 4)\nTrading Off 2-Floor Buildable Area vs. Open Plot Space & Subdivision Remainder",
+  "title2": "2. All 5 Building Typologies (Gene 'typology' = 0..4) at Equal BCR\nCourtyards (O, U, H, Opposed-C) Are Subtracted From Footprint & Preserve Daylight",
+  "typs": [
+    [0, "0: Box", "Perimeter\nSetback"],
+    [1, "1: O-Block", "Central\nCourtyard"],
+    [2, "2: U-Block", "South Open\nCourt"],
+    [3, "3: H-Block", "Double N/S\nCourts"],
+    [4, "4: Opposed-C", "Permeable\nShared Court"]
+  ]
+}
+"""
+
+LABELS_ES_JSON = r"""
+{
+  "leg_pareto": "Frente de Pareto (Np = 2,00)",
+  "cbar": "Resto de Parcela (m2s)",
+  "leg_dom": "Factible Dominado (Np < 2)",
+  "leg_cull": "Descartado Restricción (Np > 2)",
+  "pt_s4": "S4 (50%, FAR=0,60)\n36,0k m2c | 54 parc.",
+  "pt_s3": "S3 (90%, FAR=0,60)\n36,0k m2c | 54 parc.",
+  "pt_rem": "Pareto Mín. Resto\n(88,2%, FAR=0,885)\n53,1k | 43 parc. (5m2)",
+  "pt_peak": "Pareto Techo Máx.\n(90,0%, FAR=0,895)\n53,7k | 42 parc.",
+  "pt_culled": "S1/S2 (FAR=1,0)\n60,0k DESCARTADO\n(Oct_Valid=False)",
+  "xlabel1": "Objetivo 2: Ocupación BCR (%)  [Minimizar -> Más Jardín]",
+  "ylabel1": "Objetivo 1: Techo en 2 Plantas E_mat (x1.000 m2c)",
+  "title1": "1. Frente de Pareto Multiobjetivo Octopus (Tarea 4)\nCompromiso entre Techo Edificable en 2 Plantas, Espacio Libre y Resto",
+  "title2": "2. Las 5 Tipologías Edificatorias (Gen 'typology' = 0..4) a Igual BCR\nLos Patios (O, U, H, C-Opuesta) se Restan de la Huella y Preservan Luz Natural",
+  "typs": [
+    [0, "0: Caja", "Retranqueo\nPerimetral"],
+    [1, "1: Bloque O", "Patio\nCentral"],
+    [2, "2: Bloque U", "Patio Abierto\nal Sur"],
+    [3, "3: Bloque H", "Doble Patio\nN/S"],
+    [4, "4: C-Opuesta", "Patio Común\nPermeable"]
+  ]
+}
+"""
+
+TXT = json.loads(LABELS_EN_JSON)
+if LANG.upper() == "ES":
+    TXT.update(json.loads(LABELS_ES_JSON))
 
 
 # %% 1. Embedded Rhino 8 Python 3 Script for Tarea 4 (Galapagos + Octopus Pareto)
@@ -546,24 +603,24 @@ def build_fig4_pareto_svg():
 
     # --- Panel A: Octopus 2-Floor Pareto Front (E_mat vs C_ocup colored by Remainder) ---
     sc = ax1.scatter(
-        pareto_oc, pareto_emat, c=pareto_rem, cmap="viridis_r", s=18, zorder=5, label="Pareto Front (Np = 2.00)"
+        pareto_oc, pareto_emat, c=pareto_rem, cmap="viridis_r", s=18, zorder=5, label=TXT["leg_pareto"]
     )
     cbar = fig.colorbar(sc, ax=ax1, pad=0.02)
-    cbar.set_label("Plot Remainder (m2s)", fontsize=8.5, fontweight="bold")
+    cbar.set_label(TXT["cbar"], fontsize=8.5, fontweight="bold")
     cbar.ax.tick_params(labelsize=8)
 
     # Shaded dominated interior (feasible Np < 2, lower Ce)
-    ax1.fill_between(pareto_oc, 20.0, pareto_emat, color="#DCFCE7", alpha=0.45, zorder=1, label="Feasible Dominated (Np < 2)")
+    ax1.fill_between(pareto_oc, 20.0, pareto_emat, color="#DCFCE7", alpha=0.45, zorder=1, label=TXT["leg_dom"])
     # Shaded hard-constraint rejection region (Np > 2, Oct_Valid = False)
-    ax1.fill_between(pareto_oc, pareto_emat, 62.0, color="#FEE2E2", alpha=0.55, zorder=1, label="Hard Constraint Culled (Np > 2)")
+    ax1.fill_between(pareto_oc, pareto_emat, 62.0, color="#FEE2E2", alpha=0.55, zorder=1, label=TXT["leg_cull"])
 
     # Key Pareto & Reference Points
     highlights = [
-        ("S4 (50%, Ce=0.60)\n36.0k m2c | 54 plots", 50.0, 36.0, (-8, -32), "#15803D"),
-        ("S3 (90%, Ce=0.60)\n36.0k m2c | 54 plots", 90.0, 36.0, (-115, -24), "#15803D"),
-        ("Low-Rem Pareto\n(88.2%, Ce=0.885)\n53.1k | 43 plots (5m2 rem)", 88.2, 53.1, (-155, -28), "#7C3AED"),
-        ("Peak Yield Pareto\n(90.0%, Ce=0.895)\n53.7k | 42 plots", 90.0, 53.7, (-135, 10), "#2563EB"),
-        ("S1/S2 (Ce=1.0)\n60.0k CULLED\n(Oct_Valid=False)", 70.0, 60.0, (-45, -28), "#DC2626"),
+        (TXT["pt_s4"], 50.0, 36.0, (-8, -32), "#15803D"),
+        (TXT["pt_s3"], 90.0, 36.0, (-115, -24), "#15803D"),
+        (TXT["pt_rem"], 88.2, 53.1, (-155, -28), "#7C3AED"),
+        (TXT["pt_peak"], 90.0, 53.7, (-135, 10), "#2563EB"),
+        (TXT["pt_culled"], 70.0, 60.0, (-45, -28), "#DC2626"),
     ]
     for txt, px, py, off, col in highlights:
         ax1.plot(px, py, "o", markersize=7, color=col, markeredgecolor="white", zorder=8)
@@ -582,12 +639,11 @@ def build_fig4_pareto_svg():
 
     ax1.set_xlim(30, 94)
     ax1.set_ylim(22, 63)
-    ax1.set_xlabel("Objective 2: Plot Occupancy C_ocup (%)  [Minimize -> More Garden]", fontsize=8.8, fontweight="bold")
-    ax1.set_ylabel("Objective 1: 2-Floor Yield E_mat (x1,000 m2c)", fontsize=8.8, fontweight="bold")
+    ax1.set_xlabel(TXT["xlabel1"], fontsize=8.8, fontweight="bold")
+    ax1.set_ylabel(TXT["ylabel1"], fontsize=8.8, fontweight="bold")
     ax1.set_title(
-        "1. Octopus Multi-Objective Pareto Front (Tarea 4)\n"
-        "Trading Off 2-Floor Buildable Area vs. Open Plot Space & Subdivision Remainder",
-        fontsize=10.2,
+        TXT["title1"],
+        fontsize=9.8,
         fontweight="bold",
         pad=8,
     )
@@ -601,20 +657,13 @@ def build_fig4_pareto_svg():
     ax2.set_ylim(0, 1.35)
     ax2.axis("off")
     ax2.set_title(
-        "2. All 5 Building Typologies (Gene 'typology' = 0..4) at Equal C_ocup\n"
-        "Courtyards (O, U, H, Opposed-C) Are Subtracted From Footprint & Preserve Daylight",
-        fontsize=10.2,
+        TXT["title2"],
+        fontsize=9.8,
         fontweight="bold",
         pad=6,
     )
 
-    typs = [
-        (0, "0: Box", "Perimeter\nSetback"),
-        (1, "1: O-Block", "Central\nCourtyard"),
-        (2, "2: U-Block", "South Open\nCourt"),
-        (3, "3: H-Block", "Double N/S\nCourts"),
-        (4, "4: Opposed-C", "Permeable\nShared Court"),
-    ]
+    typs = TXT["typs"]
     import matplotlib.patches as mpatches
 
     for idx, name, desc in typs:
@@ -679,6 +728,7 @@ def build_fig4_pareto_svg():
 
 
 if __name__ == "__main__":
-    build_octopus_pareto_gh()
-    fix_svm_slider_lag()
+    if not os.environ.get("PLOT_ONLY"):
+        build_octopus_pareto_gh()
+        fix_svm_slider_lag()
     build_fig4_pareto_svg()

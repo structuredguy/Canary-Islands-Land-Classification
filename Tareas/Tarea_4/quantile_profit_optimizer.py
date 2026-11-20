@@ -13,6 +13,7 @@ Replaces ad-hoc Gaussian noise with spreadsheet-driven quartile curves:
 """
 
 import io
+import json
 import os
 import re
 import math
@@ -26,10 +27,70 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from adjustText import adjust_text
 
-# %% 0. Paths & Statutory Sector Constants (Tarea 4, S_bruta = 60,000 m2s)
-OUT_DIR = os.path.dirname(os.path.abspath(__file__))
-XLSX_PATH = os.path.join(OUT_DIR, "market_price_quantiles_sim.xlsx")
+# %% 0. Paths, Bilingual JSON Preamble & Statutory Sector Constants
+LANG = os.environ.get("PLOT_LANG", "EN")  # Toggle "EN" / "ES"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUT_DIR = os.environ.get("PLOT_OUT_DIR", SCRIPT_DIR)
+XLSX_PATH = os.path.join(SCRIPT_DIR, "market_price_quantiles_sim.xlsx")
 SVG_PATH = os.path.join(OUT_DIR, "fig5_quantile_profit_opt.svg")
+
+LABELS_EN_JSON = r"""
+{
+  "title1": "1. Non-Linear Logistic Quantile Regression on Spreadsheet Comps",
+  "xlabel1": "Gross FAR (Ce, m2t / m2s) on 2-Floor Frontier",
+  "ylabel1": "Market Price (EUR/m2t)",
+  "xlabel1_top": "Corresponding Lot Coverage BCR (%)",
+  "leg_iqr": "Fitted IQR Band (Q25-Q75)",
+  "leg_q75": "Q75 Upper Quartile Fit",
+  "leg_mean": "Skew-Adjusted E[P]",
+  "leg_q50": "Q50 Median Fit",
+  "leg_q25": "Q25 Lower Quartile Fit",
+  "leg_comps": "Excel Quartiles (Q25, Q50, Q75)",
+  "leg_cost": "Build Cost (1,400 EUR/m2t)",
+  "title2": "2. Promoter Net Profit via Quantile Equivariance (10% Muni Cession)",
+  "xlabel2": "Gross FAR (Ce, m2t / m2s) along 2-Floor Frontier",
+  "ylabel2": "Net Margin (M EUR)",
+  "leg_pi_iqr": "Profit IQR Band (Q25-Q75)",
+  "leg_pi_75": "Q75 Upside Profit",
+  "leg_pi_mean": "Expected Profit E[Pi] (Right-Skewed)",
+  "leg_pi_50": "Q50 Median Profit",
+  "leg_pi_25": "Q25 Lower Quartile Profit",
+  "leg_pi_cvar": "Worst-25% CVaR Profit",
+  "max_m2t": "Max m2t",
+  "ocr": ["Q75", "Q50", "CVaR25", "Max m2t", "1,400 EUR"]
+}
+"""
+
+LABELS_ES_JSON = r"""
+{
+  "title1": "1. Regresión Cuantílica Logística No Lineal sobre Testigos",
+  "xlabel1": "Gross FAR (Ce, m2c / m2s) en Frontera de 2 Plantas",
+  "ylabel1": "Precio de Mercado (EUR/m2c)",
+  "xlabel1_top": "Ocupación Equivalente BCR (%)",
+  "leg_iqr": "Banda IQR Ajustada (Q25-Q75)",
+  "leg_q75": "Ajuste Cuartil Superior Q75",
+  "leg_mean": "Media Asimétrica E[P]",
+  "leg_q50": "Ajuste Mediana Q50",
+  "leg_q25": "Ajuste Cuartil Inferior Q25",
+  "leg_comps": "Cuartiles Excel (Q25, Q50, Q75)",
+  "leg_cost": "Coste Obra (1.400 EUR/m2c)",
+  "title2": "2. Beneficio Neto por Equivarianza Cuantílica (10% Cesión PMS)",
+  "xlabel2": "Gross FAR (Ce, m2c / m2s) en Frontera de 2 Plantas",
+  "ylabel2": "Margen Neto (M EUR)",
+  "leg_pi_iqr": "Banda IQR Margen (Q25-Q75)",
+  "leg_pi_75": "Margen Alcista Q75",
+  "leg_pi_mean": "Margen Esperado E[Pi] (Asimetría +)",
+  "leg_pi_50": "Margen Mediano Q50",
+  "leg_pi_25": "Margen Inferior Q25",
+  "leg_pi_cvar": "Cola Pesimista CVaR25",
+  "max_m2t": "Máx m2c",
+  "ocr": ["Q75", "Q50", "CVaR25", "Máx m2c", "1.400 EUR"]
+}
+"""
+
+TXT = json.loads(LABELS_EN_JSON)
+if LANG.upper() == "ES":
+    TXT.update(json.loads(LABELS_ES_JSON))
 
 S_BRUTA = 60000.0       # m2s (6 ha)
 S_VIARIO = 6000.0       # m2s (10%)
@@ -368,26 +429,25 @@ def build_fig5(df_sum, fit, curves):
 
     # --- Panel A: Non-Linear Quantile Regression of Price vs. Constructability ---
     ax1 = fig.add_subplot(gs[0])
-    ax1.fill_between(ce, curves["p25"], curves["p75"], color="#DBEAFE", alpha=0.80, label="Fitted IQR Band (Q25-Q75)")
-    ax1.plot(ce, curves["p75"], color="#0284C7", lw=1.7, ls="--", label="Q75 Upper Quartile Fit")
-    ax1.plot(ce, curves["p_mean"], color="#D97706", lw=1.6, ls="-.", label="Skew-Adjusted E[P]")
-    ax1.plot(ce, curves["p50"], color="#1D4ED8", lw=2.3, label="Q50 Median Fit")
-    ax1.plot(ce, curves["p25"], color="#1E3A8A", lw=1.7, ls=":", label="Q25 Lower Quartile Fit")
+    ax1.fill_between(ce, curves["p25"], curves["p75"], color="#DBEAFE", alpha=0.80, label=TXT["leg_iqr"])
+    ax1.plot(ce, curves["p75"], color="#0284C7", lw=1.7, ls="--", label=TXT["leg_q75"])
+    ax1.plot(ce, curves["p_mean"], color="#D97706", lw=1.6, ls="-.", label=TXT["leg_mean"])
+    ax1.plot(ce, curves["p50"], color="#1D4ED8", lw=2.3, label=TXT["leg_q50"])
+    ax1.plot(ce, curves["p25"], color="#1E3A8A", lw=1.7, ls=":", label=TXT["leg_q25"])
 
     # Spreadsheet quartile whisker stems
     for x_i, l_i, m_i, h_i in zip(ce_obs, q25_obs, q50_obs, q75_obs):
         ax1.plot([x_i, x_i], [l_i, h_i], color="#0F172A", lw=1.4, zorder=5)
     ax1.scatter(ce_obs, q75_obs, marker="^", s=34, color="#0284C7", edgecolor="#0F172A", lw=0.6, zorder=6)
-    ax1.scatter(ce_obs, q50_obs, marker="o", s=38, color="#0F172A", zorder=6, label="Excel Quartiles (Q25, Q50, Q75)")
+    ax1.scatter(ce_obs, q50_obs, marker="o", s=38, color="#0F172A", zorder=6, label=TXT["leg_comps"])
     ax1.scatter(ce_obs, q25_obs, marker="v", s=34, color="#1E3A8A", edgecolor="#0F172A", lw=0.6, zorder=6)
-    ax1.axhline(COST_BUILD_M2T, color="#DC2626", ls="--", lw=1.2, label="Build Cost (1,400 EUR/m2t)")
+    ax1.axhline(COST_BUILD_M2T, color="#DC2626", ls="--", lw=1.2, label=TXT["leg_cost"])
 
     ax1.set_xlim(0.45, 0.92)
     ax1.set_ylim(1250, 4450)
-    ax1.set_xlabel("Gross FAR (Ce, m2t / m2s) on 2-Floor Frontier", fontsize=9, fontweight="bold", color="#0F172A")
-    ax1.set_ylabel("Market Price (EUR/m2t)", fontsize=9, fontweight="bold", color="#0F172A")
-    ax1.set_title("1. Non-Linear Logistic Quantile Regression on Spreadsheet Comps",
-                  fontsize=10.2, fontweight="bold", color="#0F172A", pad=24)
+    ax1.set_xlabel(TXT["xlabel1"], fontsize=9, fontweight="bold", color="#0F172A")
+    ax1.set_ylabel(TXT["ylabel1"], fontsize=9, fontweight="bold", color="#0F172A")
+    ax1.set_title(TXT["title1"], fontsize=10.0, fontweight="bold", color="#0F172A", pad=24)
     ax1.grid(True, ls=":", color="#CBD5E1", alpha=0.85)
     ax1.spines["top"].set_visible(False)
     ax1.spines["right"].set_visible(False)
@@ -398,19 +458,19 @@ def build_fig5(df_sum, fit, curves):
     oc_ticks = np.array([0.35, 0.45, 0.60, 0.75, 0.90])
     ax1_top.set_xticks(oc_to_ce(oc_ticks))
     ax1_top.set_xticklabels([f"{int(v*100)}%" for v in oc_ticks], fontsize=8, color="#475569")
-    ax1_top.set_xlabel("Corresponding Lot Coverage BCR (%)", fontsize=8.2, color="#475569", labelpad=5)
+    ax1_top.set_xlabel(TXT["xlabel1_top"], fontsize=8.2, color="#475569", labelpad=5)
     ax1_top.spines["right"].set_visible(False)
 
     ax1.legend(loc="upper right", fontsize=7.3, frameon=True, facecolor="#F8FAFC", edgecolor="#CBD5E1")
 
     # --- Panel B: Quantile-Equivariant Net Profit Frontier ---
     ax2 = fig.add_subplot(gs[1])
-    ax2.fill_between(ce, curves["pi_25"], curves["pi_75"], color="#DCFCE7", alpha=0.80, label="Profit IQR Band (Q25-Q75)")
-    ax2.plot(ce, curves["pi_75"], color="#0D9488", lw=1.7, ls="--", label="Q75 Upside Profit")
-    ax2.plot(ce, curves["pi_mean"], color="#D97706", lw=2.3, label="Expected Profit E[Pi] (Right-Skewed)")
-    ax2.plot(ce, curves["pi_50"], color="#15803D", lw=2.1, ls="-.", label="Q50 Median Profit")
-    ax2.plot(ce, curves["pi_25"], color="#166534", lw=1.6, ls=":", label="Q25 Lower Quartile Profit")
-    ax2.plot(ce, curves["pi_cvar25"], color="#7C3AED", lw=1.9, ls="--", label="Worst-25% CVaR Profit")
+    ax2.fill_between(ce, curves["pi_25"], curves["pi_75"], color="#DCFCE7", alpha=0.80, label=TXT["leg_pi_iqr"])
+    ax2.plot(ce, curves["pi_75"], color="#0D9488", lw=1.7, ls="--", label=TXT["leg_pi_75"])
+    ax2.plot(ce, curves["pi_mean"], color="#D97706", lw=2.3, label=TXT["leg_pi_mean"])
+    ax2.plot(ce, curves["pi_50"], color="#15803D", lw=2.1, ls="-.", label=TXT["leg_pi_50"])
+    ax2.plot(ce, curves["pi_25"], color="#166534", lw=1.6, ls=":", label=TXT["leg_pi_25"])
+    ax2.plot(ce, curves["pi_cvar25"], color="#7C3AED", lw=1.9, ls="--", label=TXT["leg_pi_cvar"])
 
     # Mark exact continuous optima for each criterion
     specs = [
@@ -444,7 +504,7 @@ def build_fig5(df_sum, fit, curves):
     t_bnd = ax2.text(
         0.74,
         33.5,
-        f"Max m2t: FAR={x_max_e:.3f} | {y_max_e:.1f}M",
+        f"{TXT['max_m2t']}: FAR={x_max_e:.3f} | {y_max_e:.1f}M",
         fontsize=7.5,
         fontweight="bold",
         color="#B91C1C",
@@ -481,10 +541,9 @@ def build_fig5(df_sum, fit, curves):
 
     ax2.set_xlim(0.45, 0.92)
     ax2.set_ylim(18, 82)
-    ax2.set_xlabel("Gross FAR (Ce, m2t / m2s) along 2-Floor Frontier", fontsize=9, fontweight="bold", color="#0F172A")
-    ax2.set_ylabel("Net Margin (M EUR)", fontsize=9, fontweight="bold", color="#0F172A")
-    ax2.set_title("2. Promoter Net Profit via Quantile Equivariance (10% Muni Cession)",
-                  fontsize=10.2, fontweight="bold", color="#0F172A", pad=8)
+    ax2.set_xlabel(TXT["xlabel2"], fontsize=9, fontweight="bold", color="#0F172A")
+    ax2.set_ylabel(TXT["ylabel2"], fontsize=9, fontweight="bold", color="#0F172A")
+    ax2.set_title(TXT["title2"], fontsize=10.0, fontweight="bold", color="#0F172A", pad=8)
     ax2.grid(True, ls=":", color="#CBD5E1", alpha=0.85)
     ax2.spines["top"].set_visible(False)
     ax2.spines["right"].set_visible(False)
@@ -492,7 +551,7 @@ def build_fig5(df_sum, fit, curves):
 
     fig.savefig(SVG_PATH, format="svg", bbox_inches="tight", facecolor="white")
     make_svg_responsive(SVG_PATH)
-    verify_in_memory_ocr(fig, ["Q75", "Q50", "CVaR25", "Max m2t", "1,400 EUR"], "fig5_quantile_profit")
+    verify_in_memory_ocr(fig, TXT["ocr"], "fig5_quantile_profit")
     plt.close(fig)
 
 

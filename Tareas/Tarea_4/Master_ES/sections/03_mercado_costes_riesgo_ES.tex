@@ -1,0 +1,84 @@
+\section{Valoración de Mercado, Costes Físicos y Frontera Riesgo--Eficiencia}
+\label{sec:mercado_economico}
+
+\subsection{Cuartiles de Precio, Asimetría y Frontera Riesgo--Rendimiento}
+\label{sub:cuartiles_mercado}
+
+Sustituir hipótesis gaussianas arbitrarias por una \textbf{regresión cuantílica no lineal} sobre cuartiles observados de mercado ($Q_{25}$, mediana $Q_{50}$ y cuartil superior $Q_{75}$ en siete tramos de densidad desde $\text{BCR} = 35\%$ hasta $90\%$) permite modelizar de forma realista tanto la compresión de precios al aumentar la densidad como la fuerte asimetría positiva en baja densidad:
+
+\begin{itemize}
+  \item \textbf{Dispersión heterogénea y sesgo de lujo:} Las villas aisladas de baja ocupación ($\text{BCR} = 35\%$, $\text{Gross FAR} = 0,479$) presentan un amplio rango alcista ($Q_{25} = 3.120$, $Q_{50} = 3.480$, $Q_{75} = 4.150\text{ EUR}/\text{m}^2\text{c}$), mientras que las promociones adosadas al límite ($\text{BCR} = 90\%$, $\text{Gross FAR} = 0,895$) comprimen su dispersión ($Q_{25} = 1.940$, $Q_{50} = 2.060$, $Q_{75} = 2.160\text{ EUR}/\text{m}^2\text{c}$).
+  \item \textbf{Equivarianza cuantílica del margen neto ($\Pi$):} Como el beneficio neto del promotor es una función lineal estrictamente creciente del precio de venta $P$, los cuartiles de precio se trasladan de manera exacta a cuartiles de margen neto sin error estadístico de muestreo.
+  \item \textbf{Frontera Riesgo--Rentabilidad (Markowitz, 1952 \cite{markowitz1952portfolio}):} De forma análoga a la frontera eficiente entre rendimiento esperado y riesgo de cartera formulada por el premio Nobel Harry Markowitz, la densidad óptima se desplaza según la aversión al riesgo del promotor (Tabla~\ref{tab:optimos_cuartiles} y Figura~\ref{fig:fig5_quantile}): el sesgo alcista tira del valor esperado $\mathbb{E}[\Pi]$ hacia densidades más bajas ($\text{Gross FAR}^* = 0,5756$, $\text{BCR} = 44,9\%$), mientras que proteger la cola bajista ($\text{CVaR}_{25}$) desplaza el óptimo hacia mayor volumen ($\text{Gross FAR}^* = 0,6180$, $\text{BCR} = 49,7\%$).
+\end{itemize}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Desplazamiento del óptimo económico según criterio cuantílico (coste base constante $1.400\text{ EUR}/\text{m}^2\text{c}$).}
+  \label{tab:optimos_cuartiles}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    \textbf{Criterio Económico} & \textbf{Gross FAR* ($C_e^*$)} & \textbf{BCR* ($C_{\text{ocup}}^*$)} & \textbf{Margen Neto (M EUR)} & \textbf{Óptimo Discreto (Parcelas)} \\
+    \midrule
+    $\text{CVaR}_{25}$ (Cola pesimista) & $0,6180$ & $49,7\%$ & $38,87\text{ M}$ & $0,6251$ ($53$) \\
+    $Q_{25}$ (Cuartil inferior) & $0,6055$ & $48,2\%$ & $46,87\text{ M}$ & $0,6000$ ($54$) \\
+    $Q_{50}$ (Mediana de mercado) & $0,5947$ & $47,0\%$ & $56,02\text{ M}$ & $0,6000$ ($54$) \\
+    $\mathbb{E}[\Pi]$ (Media con asimetría) & $\mathbf{0,5756}$ & $\mathbf{44,9\%}$ & $\mathbf{59,64\text{ M}}$ & $0,5741$ ($55$) \\
+    $Q_{75}$ (Cuartil alcista) & $0,5606$ & $43,3\%$ & $71,70\text{ M}$ & $0,5656$ ($55$) \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.88\linewidth]{img/fig5_quantile_profit_opt.pdf}
+  \caption{Regresión cuantílica logística sobre precios comparables y desplazamiento del margen neto esperado frente a $\text{CVaR}_{25}$ y el máximo físico ($\text{Gross FAR} = 0,895$).}
+  \label{fig:fig5_quantile}
+\end{figure}
+
+\subsection{Curva Física de Costes de Construcción e Inflexión de Garaje}
+\label{sub:costes_unificados}
+
+El coste duro de ejecución material y contrata ($C_{\text{build}}$ en $\text{EUR}/\text{m}^2\text{c}$) \textbf{no permanece constante}, sino que describe una curva en \textbf{forma de U} controlada por la geometría de la edificación y la dotación obligatoria de aparcamiento ($\ge 1$ plaza/vivienda):
+
+\begin{enumerate}
+  \item \textbf{Tramo decreciente por compacidad y calidades ($\text{BCR} = 35\% \to 70\%$):} Al pasar de viviendas unifamiliares exentas de cuatro fachadas con piscina y acabados singulares a viviendas pareadas o en hilera con medianeras compartidas, se reduce drásticamente el ratio de envolvente exterior por $\text{m}^2\text{c}$ y se amortizan los medios auxiliares de obra.
+  \item \textbf{Repunte brusco por saturación de parcela ($\text{BCR} > 70\%$--$72\%$ o $N_p \ge 3$):} Cuando la ocupación supera el $\sim 70\%$, el espacio libre restante en parcela no admite calles de rodadura ni plazas de aparcamiento en superficie, lo que obliga a excavar \textbf{garajes comunitarios en sótano} (muros de contención, ventilación forzada e instalaciones contra incendios según CTE), incorporando un sobrecoste aproximado de $\mathbf{+250\text{ EUR}/\text{m}^2\text{c}}$ residencial.
+\end{enumerate}
+
+Como resume la Tabla~\ref{tab:sensibilidad_costes} y muestra la Figura~\ref{fig:fig6_costes}, reconocer el mayor coste constructivo de la vivienda aislada de baja densidad corrige a la derecha el óptimo esperado ($\text{Gross FAR}^*$: de $0,576$ a $0,608$; $\text{BCR}^*$: de $44,9\%$ a $48,5\%$), mientras que el coste del sótano penaliza severamente el límite del $90\%$ de ocupación ($\text{Gross FAR} = 0,895$: caída hasta $22,48\text{ M EUR}$).
+
+\begin{table}[htbp]
+  \centering
+  \caption{Sensibilidad del margen neto esperado $\mathbb{E}[\Pi]$ ante hipótesis de coste constructivo.}
+  \label{tab:sensibilidad_costes}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{@{}lccccc@{}}
+    \toprule
+    \textbf{Hipótesis de Coste} & \textbf{Gross FAR*} & \textbf{BCR*} & \textbf{Coste en Óptimo} & \textbf{Pico $\mathbb{E}[\Pi]$} & \textbf{Margen en $0,895$} \\
+    \midrule
+    Constante ($1.400\text{ EUR}/\text{m}^2\text{c}$) & $0,576$ & $44,9\%$ & $1.400\text{ EUR}/\text{m}^2\text{c}$ & $59,64\text{ M}$ & $28,95\text{ M}$ \\
+    Decreciente (Envolvente + Escala) & $0,610$ & $48,7\%$ & $1.502\text{ EUR}/\text{m}^2\text{c}$ & $55,77\text{ M}$ & $34,81\text{ M}$ \\
+    Forma en U ($+$Sótano $\text{BCR}>72\%$) & $0,608$ & $48,5\%$ & $1.505\text{ EUR}/\text{m}^2\text{c}$ & $55,72\text{ M}$ & $22,48\text{ M}$ \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.88\linewidth]{img/fig6_cost_curve_sensitivity.pdf}
+  \caption{Efecto de la economía de envolvente y del umbral de garaje subterráneo sobre el óptimo del promotor.}
+  \label{fig:fig6_costes}
+\end{figure}
+
+\subsection{Integración de Expectativas de Sensibilidad del Experto}
+\label{sub:expectativas_experto}
+
+Cuando los testigos de mercado son escasos en densidades intermedias, el análisis profesional no depende únicamente de puntos aislados ni de dispersiones sintéticas. El criterio del tasador puede formalizarse combinando una curva base de referencia con juicios locales sobre la \textbf{sensibilidad marginal del precio} ($\partial P / \partial \text{Gross FAR}$ —por ejemplo, estimar que un incremento de $+0,10$ en edificabilidad bruta alrededor de $0,60$ reduce el precio unitario en torno a $450\text{ EUR}/\text{m}^2\text{c}$, o que la pendiente se estabiliza al superar el $85\%$ de ocupación—), estrechando coherentemente la banda de incertidumbre allí donde existe conocimiento experto contrastado.
+
+\begin{tcolorbox}[jumpbox]
+\textbf{Salto Lateral $\to$ Impacto del Sótano Común en VPO:} La misma regla física que encarece el coste a partir del $70\%$ de ocupación o desde $3$ plantas se aplica de manera idéntica a la vivienda protegida compacta en la Subsección~\ref{sub:vpo_2f_5f}.
+\end{tcolorbox}

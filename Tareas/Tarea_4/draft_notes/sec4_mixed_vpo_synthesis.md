@@ -7,12 +7,22 @@
 <a id="sub4_1"></a>
 ## 4.1 Statutory VPO Budget on Buildable Area ($\text{m}^2_c$) & Decoupled Coverages
 
-As established in **`Tarea_3`**, statutory protected housing (`VPO`) reserves (**`40%`** baseline in **RDL 7/2015 Art. 20.1.b**; **`>= 30%`** regional floor in **Ley 4/2017 Art. 138**) apply strictly to **total residential buildable area ($E_{\text{teórica}}$ in $\text{m}^2_c$)**, **not** net land area ($S_{\text{neta}}$):
+As established in **`Tarea_3`**, statutory protected housing (`VPO`) reserves (**`40%`** baseline in **RDL 7/2015 Art. 20.1.b**; **`>= 30%`** regional floor in **Ley 4/2017 Art. 138**) apply strictly to **total residential buildable area** ($$E_{\text{teórica}}$$ in $$\text{m}^2_c$$), **not** net land area ($$S_{\text{neta}}$$):
 
 - **Total Sector Allocation (`40% VPO / 60% Market`):** Comprises **`10%`** Municipal PMS land (see [§2.2 Municipal Cession](sec2_legal_realities.md#sub2_2)) plus **`30%`** private promoter VPO, leaving **`60%`** free-market housing.
-- **Expansion from 2D to 3D Choice Space:** Separating free-market lot coverage ($\text{BCR}_M$) from social-housing lot coverage ($\text{BCR}_V$) yields a decoupled feasibility frontier linking total `Gross FAR` to both typologies:
+- **Expansion from 2D to 3D Choice Space:** Separating free-market lot coverage ($$\text{BCR}_M$$) from social-housing lot coverage ($$\text{BCR}_V$$) yields a decoupled feasibility frontier linking total `Gross FAR` to both typologies:
 
 $$\text{Gross FAR}_{\max}(\text{BCR}_M, \text{BCR}_V) = \frac{0.90}{0.45 + \frac{0.60}{2\,\text{BCR}_M} + \frac{0.40}{N_{p,V}\,\text{BCR}_V}}$$
+
+> **Note Box — Derivation of the Two-Zone Formula & Factor `2`:**
+>
+> 1. **Net land supply:** Subtracting `10%` roads and `0.45 m2s/m2c` cessions gives $$S_{\text{neta}} = 0.90\,S_{\text{bruta}} - 0.45\,E_{\text{teórica}}$$, or dividing by $$S_{\text{bruta}}$$: $$\frac{S_{\text{neta}}}{S_{\text{bruta}}} = 0.90 - 0.45\,\text{Gross FAR}$$.
+> 2. **Zone land demand (origin of the `2`):** Free-market housing ($$60\%$$ of $$E_{\text{teórica}}$$) is capped at **2 floors** ($$N_{p,M} = 2$$), so it requires $$S_M = \frac{0.60\,E_{\text{teórica}}}{2\,\text{BCR}_M}$$. Protected VPO housing ($$40\%$$ of $$E_{\text{teórica}}$$) with floor cap $$N_{p,V}$$ requires $$S_V = \frac{0.40\,E_{\text{teórica}}}{N_{p,V}\,\text{BCR}_V}$$.
+> 3. **Frontier balance (`Supply = Demand`):** Setting $$S_M + S_V = S_{\text{neta}}$$ and dividing by $$S_{\text{bruta}}$$ gives:
+>
+> $$0.90 - 0.45\,\text{Gross FAR} = \text{Gross FAR}\left(\frac{0.60}{2\,\text{BCR}_M} + \frac{0.40}{N_{p,V}\,\text{BCR}_V}\right)$$
+>
+> 4. **Solve for `Gross FAR`:** Factoring $$\text{Gross FAR}$$ on the right produces the formula above. When $$\text{BCR}_M = \text{BCR}_V = \text{BCR}$$ and $$N_{p,V} = 2$$, it collapses identically to the single-zone frontier $$\frac{1.8\,\text{BCR}}{1 + 0.9\,\text{BCR}}$$ in [§1.3](sec1_statutory_model.md#sub1_3).
 
 ---
 
@@ -35,4 +45,4 @@ To avoid inconsistent cost assumptions across typologies, **both Market and VPO 
 
 ---
 
-[&larr; Ch. 3 Market Economics](sec3_market_economics.md) · [Back to Draft Index](index.md)
+[&larr; Ch. 3 Market Economics](sec3_market_economics.md) · [Draft Index](index.md) · [Next: Chapter 5 — Theory vs. Santa Cruz Reality &rarr;](sec5_theory_vs_reality.md)

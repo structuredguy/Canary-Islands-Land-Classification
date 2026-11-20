@@ -1,0 +1,58 @@
+\section{Reserva de Vivienda Protegida (VPO) y Desacoplamiento Morfológico}
+\label{sec:vpo_mixta}
+
+\subsection{Base Estatutaria sobre Techo Edificable y Fórmula de la Frontera Desacoplada}
+\label{sub:desacoplamiento_vpo}
+
+La normativa estatal (Art.~20.1.b del TRLSRU \cite{trlsru2015}, $40\%$ en suelo urbanizable) y el suelo mínimo autonómico canario (Art.~138 de la Ley~4/2017 \cite{ley4_2017_canarias}, $\ge 30\%$; desarrollado en el Decreto~183/2018 \cite{decreto183_2018_canarias}) imponen la reserva de vivienda protegida (VPO) \textbf{sobre el techo edificable total ($E_{\text{teórica}}$ en $\text{m}^2\text{c}$)}, y no sobre la superficie de suelo neto ($S_{\text{neta}}$). En el escenario regulatorio de referencia con reserva del $40\%$, el techo se desglosa en un $10\%$ de cesión municipal libre de cargas de urbanización (PMS), un $30\%$ de VPO de promoción privada y un $60\%$ de vivienda libre de mercado.
+
+Al segregar el sector en dos zonas residenciales independientes ---zona libre con ocupación $\text{BCR}_M$ y zona protegida con ocupación $\text{BCR}_V$ y altura $N_{p,V}$---, el techo máximo alcanzable queda gobernado por la frontera conjunta:
+
+\begin{equation}
+\text{Gross FAR}_{\max}(\text{BCR}_M, \text{BCR}_V) = \frac{0{,}90}{0{,}45 + \dfrac{0{,}60}{2\,\text{BCR}_M} + \dfrac{0{,}40}{N_{p,V}\,\text{BCR}_V}}
+\label{eq:frontera_desacoplada}
+\end{equation}
+
+\begin{tcolorbox}[notabox]
+\textbf{Derivación del factor $2$ y de la frontera en sectores mixtos ($\alpha_{\text{VPO}} = 0{,}40$):}
+\begin{enumerate}
+  \item \textbf{Partición del techo edificable por zonas:} La reserva estatutaria del $40\%$ divide el techo total $E_{\text{teórica}} = \text{Gross FAR} \cdot S_{\text{bruta}}$ en dos bloques: $E_M = 0{,}60\,E_{\text{teórica}}$ para vivienda libre y $E_V = 0{,}40\,E_{\text{teórica}}$ para vivienda protegida (integrando la cesión del $10\%$ de PMS y el $30\%$ de VPO del promotor).
+  \item \textbf{Demanda de suelo neto y origen del factor $2$:} Por definición de edificabilidad neta ($\text{Net FAR} = N_p \cdot \text{BCR}$), una parcela colmatada en altura genera $N_p \cdot \text{BCR}$ $\text{m}^2\text{c}$ por cada $\text{m}^2\text{s}$ neto. Al permanecer la vivienda libre estrictamente limitada a \textbf{$2$ plantas ($N_{p,M} = 2$)}, su rendimiento es $2\,\text{BCR}_M$ y exige una superficie neta $S_{\text{neta},M} = \frac{0{,}60\,E_{\text{teórica}}}{2\,\text{BCR}_M}$ ---origen directo del divisor $2$---. De forma análoga, la zona protegida requiere $S_{\text{neta},V} = \frac{0{,}40\,E_{\text{teórica}}}{N_{p,V}\,\text{BCR}_V}$.
+  \item \textbf{Balance territorial del sector:} Sumando ambas parcelas netas, los sistemas locales ($\text{EL}+D+I = 0{,}45\,E_{\text{teórica}}$ conforme al estándar de $45\,\text{m}^2\text{s}$ por cada $100\,\text{m}^2\text{c}$) y el viario estructural ($0{,}10\,S_{\text{bruta}}$), el cierre superficial $S_{\text{neta},M} + S_{\text{neta},V} + 0{,}45\,E_{\text{teórica}} = 0{,}90\,S_{\text{bruta}}$ conduce directamente a la Ecuación~\eqref{eq:frontera_desacoplada}.
+  \item \textbf{Caso particular uniforme ($\text{BCR}_M = \text{BCR}_V = \text{BCR}$ y $N_{p,V} = 2$):} Los dos sumandos residenciales colapsan en $\frac{1{,}00}{2\,\text{BCR}}$ y, multiplicando numerador y denominador por $2\,\text{BCR}$, se recupera exactamente la curva homogénea $\text{Gross FAR}_{\max} = \frac{1{,}8\,\text{BCR}}{1 + 0{,}9\,\text{BCR}}$ de la Sección~\ref{sec:modelo_normativo}.
+\end{enumerate}
+\end{tcolorbox}
+
+\subsection{Atrapamiento en 2 Plantas frente a Torres VPO de 5 Plantas}
+\label{sub:vpo_2f_5f}
+
+Aplicando la función física de costes en forma de U (sobrecoste de $+250\text{ EUR}/\text{m}^2\text{c}$ por garaje subterráneo cuando $\text{BCR} > 70\%$ o $N_p \ge 3$ \cite{cte2006}) y verificando el módulo máximo legal de coste VPO ($1.680\text{ EUR}/\text{m}^2\text{c}$), la Tabla~\ref{tab:vpo_desacoplamiento} y la Figura~\ref{fig:fig7_vpo_mixed} muestran el impacto decisivo de liberar la altura únicamente en la zona protegida:
+
+\begin{itemize}
+  \item \textbf{Escenario estricto de $2$ plantas ($N_{p,V} = 2$):} Para no expulsar volumen lucrativo libre de alto precio ($E_M$), el promotor comprime al máximo la zona protegida hasta el límite de ocupación ($\text{BCR}_V^* = 90{,}0\%$, vivienda adosada de $2$ plantas). Aunque este diseño activa la excavación de garaje comunitario ($C_{\text{build,V}} = 1.417\text{ EUR}/\text{m}^2\text{c}$, todavía viable bajo el tope de $1.680\text{ EUR}/\text{m}^2\text{c}$), sigue consumiendo $8.928\text{ m}^2\text{s}$ de suelo neto y reduce el margen esperado a $44{,}75\text{ M EUR}$.
+  \item \textbf{Rescate morfológico mediante torres VPO de $5$ plantas ($N_{p,V} = 5$):} Permitir bloques plurifamiliares protegidos en altura permite reducir la ocupación protegida hasta $\text{BCR}_V^* = 55{,}0\%$, compactando su huella a $6.242\text{ m}^2\text{s}$. El suelo liberado permite elevar la edificabilidad bruta óptima de $0{,}6696$ a $0{,}7152$, expandir las parcelas libres de baja ocupación ($28.448\text{ m}^2\text{s}$ con $\text{BCR}_M^* = 45{,}3\%$) y recuperar \textbf{$+2{,}31\text{ M EUR}$} de margen neto esperado ($47{,}06\text{ M EUR}$), manteniendo el coste VPO en $1.462\text{ EUR}/\text{m}^2\text{c}$.
+\end{itemize}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Optimización económica y ocupación de suelo con reserva VPO desacoplada bajo curva de costes unificada (sector $6\text{ ha}$, tope VPO $1.680\text{ EUR}/\text{m}^2\text{c}$).}
+  \label{tab:vpo_desacoplamiento}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{@{}lcccccc@{}}
+    \toprule
+    \textbf{Escenario Regulatorio} & \textbf{Gross FAR*} & \textbf{BCR$_M$* / BCR$_V$*} & \textbf{Coste Libre / VPO} & \textbf{$S_{\text{mkt}}$ / $S_{\text{vpo}}$ ($\text{m}^2\text{s}$)} & \textbf{$\mathbb{E}[\Pi]$ (M EUR)} \\
+    \midrule
+    $0\%$ VPO (Referencia pura) & $0{,}6106$ & $48{,}8\%$ / --- & $1.533$ / --- & $33.763$ / $0$ & $54{,}72\text{ M}$ \\
+    $40\%$ VPO estricto ($N_p \le 2$) & $0{,}6696$ & $44{,}6\%$ / $90{,}0\%$ & $1.574$ / $1.417$ & $26.994$ / $8.928$ & $44{,}75\text{ M}$ \\
+    $40\%$ VPO torres $5\text{F}$ & $\mathbf{0{,}7152}$ & $45{,}3\%$ / $55{,}0\%$ & $1.568$ / $1.462$ & $28.448$ / $6.242$ & $\mathbf{47{,}06\text{ M}}$ \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.88\linewidth]{img/fig7_vpo_mixed_opt.pdf}
+  \caption{Desplazamiento del margen neto esperado y ahorro de suelo mediante desacoplamiento morfológico entre zona libre de $2$ plantas y bloque protegido de $5$ plantas.}
+  \label{fig:fig7_vpo_mixed}
+\end{figure}

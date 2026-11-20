@@ -6,6 +6,7 @@ and runs an in-memory RapidOCR + bounding-box collision check without saving PNG
 """
 
 import io
+import json
 import os
 import re
 import numpy as np
@@ -16,14 +17,135 @@ import matplotlib.patches as patches
 from matplotlib.lines import Line2D
 from PIL import Image
 
-# %% Global Style Configuration (Mobile-First Typography)
+# %% Global Style Configuration & Bilingual JSON Preamble
 plt.rcParams["font.family"] = "sans-serif"
 plt.rcParams["font.sans-serif"] = ["DejaVu Sans", "Arial", "Helvetica"]
 plt.rcParams["axes.edgecolor"] = "#334155"
 plt.rcParams["axes.linewidth"] = 0.9
 plt.rcParams["svg.fonttype"] = "none"  # Keep crisp selectable SVG text
 
-OUT_DIR = os.path.dirname(os.path.abspath(__file__))
+LANG = os.environ.get("PLOT_LANG", "EN")  # Toggle "EN" / "ES"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUT_DIR = os.environ.get("PLOT_OUT_DIR", SCRIPT_DIR)
+
+LABELS_EN_JSON = r"""
+{
+  "fig1": {
+    "title1": "1. How Buildability (Gross FAR / Ce) Shrinks Net Land\nCessions = 0.45 x E_teorica  |  Roads = 10% Fixed",
+    "xlabel1": "Sector Land Area (m2s)  |  Total S_bruta = 60,000 m2s (6 ha)",
+    "ytick_a": "Group A\nCe = 1.0\n(60,000 m2c)",
+    "ytick_b": "Group B\nCe = 0.6\n(36,000 m2c)",
+    "plots_rem": "38 plots\n(rem 400 m2s)",
+    "plots_exact": "54 plots\n(exact 0 rem)",
+    "cess_bar": "Cessions\n{cess:,} m2s",
+    "net_bar": "Net: {net:,} m2s\n{plots}",
+    "leg_road": "Roads (10%)",
+    "leg_cess": "Public Cessions (45 m2s/100 m2c)",
+    "leg_net": "Net Lucrative Land (>=700 m2s/plot)",
+    "title2": "2. Vertical Massing Across the 4 Scenarios\nDashed Red Line = 2-Floor Cap (Np = 2)",
+    "sc_prefix": ["S1: Ce=1.0, BCR=90%", "S2: Ce=1.0, BCR=50%", "S3: Ce=0.6, BCR=90%", "S4: Ce=0.6, BCR=50%"],
+    "sc_loss": ["-19% lost", "-55% lost", "0% lost", "0% lost"],
+    "badge_fmt": "{exact:.2f} -> {ceil} fl | {plots} plots  ({loss})",
+    "ocr": ["60,000", "38 plots", "54 plots", "2.47", "4.44", "1.06", "1.90"]
+  },
+  "fig2": {
+    "title": "Feasible Design Space Under 2-Floor Cap (Np <= 2)\nWhy BCR Alone Fails for Gross FAR = 1.0 & Solution Paths",
+    "xlabel": "Building Coverage Ratio BCR / C_ocup (%)",
+    "ylabel": "Gross FAR / Ce (m2c / m2s)",
+    "np2_limit": "Np=2 Limit",
+    "cap_ley": "Ley 4/2017 Cap (Gross FAR <= 1.20)",
+    "wall": "Physical\nWall\n(>100%)",
+    "feasible": "FEASIBLE\n(Np <= 2)",
+    "pt_wall": "Wall\n(111%)",
+    "pt_b1": "Fix B1\n(0.895)",
+    "pt_b2": "Fix B2\n(0.621)",
+    "pt_c": "Fix C\n(85%,0.85)",
+    "leg_s12": "S1, S2 (Unfeasible Np=2)",
+    "leg_s34": "S3, S4 (Feasible Np<=2)",
+    "leg_b": "Reduce Gross FAR Only (Fix B)",
+    "leg_c": "Combined Fix (BCR + Gross FAR)",
+    "ocr": ["Feasible", "Np=2", "S1", "S2", "S3", "S4", "111%"]
+  },
+  "fig3": {
+    "title1": "1. Discrete Plot Staircase: S_min = 700 m2s Quantization\nHigher Gross FAR Reduces Net Land and Plot Count",
+    "xlabel1": "Gross FAR / Ce (m2c / m2s)",
+    "ylabel1": "Resulting Plots (N_parcelas)",
+    "leg_cont": "Continuous S_neta / 700",
+    "leg_step": "Discrete Plots floor(S_neta / 700)",
+    "ann_06": "FAR=0.6 -> 54.00\n(Exact 0 rem)",
+    "ann_b1": "Fix B1 (0.895)\n-> 42 plots",
+    "ann_10": "FAR=1.0 -> 38.57\n(38 + 400 m2s rem)",
+    "title2": "2. Theoretical vs Materialized Floor Area (Np = 2)\nCombined Fix (0.85, 85%) Builds 51.0k m2c in 2 Floors",
+    "ylabel2": "Floor Area (x1,000 m2c)",
+    "leg_built": "Built in 2 Floors (E_mat)",
+    "leg_def": "Unbuilt Deficit (TAU / Subsoil)",
+    "xlabels": ["S1\n(1.0, 90%)", "S2\n(1.0, 50%)", "S3\n(0.6, 90%)", "S4\n(0.6, 50%)", "Fix C\n(0.85, 85%)"],
+    "ocr": ["54", "38", "48.6k", "27.0k", "51.0k", "-19%", "-55%"]
+  }
+}
+"""
+
+LABELS_ES_JSON = r"""
+{
+  "fig1": {
+    "title1": "1. Cómo la Edificabilidad Bruta (Gross FAR) Reduce el Suelo Neto\nCesiones = 0,45 x E_teórica  |  Viario = 10% Fijo",
+    "xlabel1": "Superficie de Suelo (m2s)  |  Total S_bruta = 60.000 m2s (6 ha)",
+    "ytick_a": "Grupo A\nCe = 1,0\n(60.000 m2c)",
+    "ytick_b": "Grupo B\nCe = 0,6\n(36.000 m2c)",
+    "plots_rem": "38 parcelas\n(resto 400 m2s)",
+    "plots_exact": "54 parcelas\n(0 resto)",
+    "cess_bar": "Cesiones\n{cess:,} m2s",
+    "net_bar": "Neto: {net:,} m2s\n{plots}",
+    "leg_road": "Viario (10%)",
+    "leg_cess": "Cesiones EL/D/I (45 m2s/100 m2c)",
+    "leg_net": "Suelo Neto Lucrativo (>=700 m2s/parc.)",
+    "title2": "2. Volumetría Vertical en los 4 Escenarios\nLínea Roja Discontinua = Tope de 2 Plantas (Np = 2)",
+    "sc_prefix": ["S1: Ce=1,0, BCR=90%", "S2: Ce=1,0, BCR=50%", "S3: Ce=0,6, BCR=90%", "S4: Ce=0,6, BCR=50%"],
+    "sc_loss": ["-19% déficit", "-55% déficit", "0% déficit", "0% déficit"],
+    "badge_fmt": "{exact:.2f} -> {ceil} pl | {plots} parc ({loss})",
+    "ocr": ["60,000", "38 parcelas", "54 parcelas", "2.47", "4.44", "1.06", "1.90"]
+  },
+  "fig2": {
+    "title": "Espacio Factible bajo Límite de 2 Plantas (Np <= 2)\nInviabilidad de Subir Solo BCR con FAR=1,0 y Rutas de Ajuste",
+    "xlabel": "Ocupación de Parcela BCR / C_ocup (%)",
+    "ylabel": "Edificabilidad Bruta Gross FAR / Ce (m2c / m2s)",
+    "np2_limit": "Límite Np=2",
+    "cap_ley": "Tope Ley 4/2017 (Gross FAR <= 1,20)",
+    "wall": "Muro\nFísico\n(>100%)",
+    "feasible": "FACTIBLE\n(Np <= 2)",
+    "pt_wall": "Muro\n(111%)",
+    "pt_b1": "Ajuste B1\n(0,895)",
+    "pt_b2": "Ajuste B2\n(0,621)",
+    "pt_c": "Ajuste C\n(85%,0,85)",
+    "leg_s12": "S1, S2 (Inviables Np=2)",
+    "leg_s34": "S3, S4 (Factibles Np<=2)",
+    "leg_b": "Reducir Solo Gross FAR (B)",
+    "leg_c": "Ajuste Mixto (BCR + Gross FAR)",
+    "ocr": ["FACTIBLE", "Np=2", "S1", "S2", "S3", "S4", "111%"]
+  },
+  "fig3": {
+    "title1": "1. Escalera Discreta de Parcelas: Cuantización S_min = 700 m2s\nMayor Gross FAR Reduce el Suelo Neto y el N.º de Parcelas",
+    "xlabel1": "Edificabilidad Bruta Gross FAR / Ce (m2c / m2s)",
+    "ylabel1": "Parcelas Resultantes (N_parcelas)",
+    "leg_cont": "Continuo S_neta / 700",
+    "leg_step": "Parcelas Discretas floor(S_neta / 700)",
+    "ann_06": "FAR=0,6 -> 54,00\n(0 resto)",
+    "ann_b1": "Ajuste B1 (0,895)\n-> 42 parcelas",
+    "ann_10": "FAR=1,0 -> 38,57\n(38 + 400 m2s resto)",
+    "title2": "2. Techo Teórico vs. Materializable (Np = 2)\nEl Ajuste C (0,85; 85%) Edifica 51,0k m2c en 2 Plantas",
+    "ylabel2": "Superficie Construida (x1.000 m2c)",
+    "leg_built": "Edificado en 2 Plantas (E_mat)",
+    "leg_def": "Déficit No Edificable (TAU / Subsuelo)",
+    "xlabels": ["S1\n(1,0; 90%)", "S2\n(1,0; 50%)", "S3\n(0,6; 90%)", "S4\n(0,6; 50%)", "Ajuste C\n(0,85; 85%)"],
+    "ocr": ["54", "38", "48.6k", "27.0k", "51.0k", "-19%", "-55%"]
+  }
+}
+"""
+
+TXT = json.loads(LABELS_EN_JSON)
+if LANG.upper() == "ES":
+    for _k, _v in json.loads(LABELS_ES_JSON).items():
+        TXT[_k].update(_v)
 
 # Colorblind-safe, high-contrast palette
 C_ROAD = "#94A3B8"
@@ -105,6 +227,7 @@ def verify_in_memory_ocr(fig, required_tokens, label):
 
 # %% FIGURE 1: Problem Structure (Land Split + 4 Scenario Massing Profiles)
 def build_fig1():
+    t = TXT["fig1"]
     fig = plt.figure(figsize=(6.4, 9.0), facecolor="white")
     gs = fig.add_gridspec(2, 1, height_ratios=[0.95, 1.45], hspace=0.34)
 
@@ -113,20 +236,17 @@ def build_fig1():
     ax1.set_xlim(0, 62000)
     ax1.set_ylim(-0.55, 1.85)
     ax1.set_yticks([1.05, 0.15])
-    ax1.set_yticklabels(["Group A\nCe = 1.0\n(60,000 m2c)", "Group B\nCe = 0.6\n(36,000 m2c)"],
+    ax1.set_yticklabels([t["ytick_a"], t["ytick_b"]],
                         fontsize=9.5, fontweight="bold", color=C_DARK)
-    ax1.set_xlabel("Sector Land Area (m2s)  |  Total S_bruta = 60,000 m2s (6 ha)",
-                   fontsize=9, fontweight="bold", color=C_DARK)
-    ax1.set_title("1. How Buildability (Ce) Shrinks Net Land\n"
-                  "Cessions = 0.45 x E_teorica  |  Roads = 10% Fixed",
-                  fontsize=11, fontweight="bold", color=C_DARK, pad=10)
+    ax1.set_xlabel(t["xlabel1"], fontsize=9, fontweight="bold", color=C_DARK)
+    ax1.set_title(t["title1"], fontsize=11, fontweight="bold", color=C_DARK, pad=10)
     ax1.grid(axis="x", linestyle=":", color="#CBD5E1", alpha=0.8)
     ax1.spines["top"].set_visible(False)
     ax1.spines["right"].set_visible(False)
 
     groups = [
-        {"y": 1.05, "road": 6000, "cess": 27000, "net": 27000, "plots": "38 plots\n(rem 400 m2s)"},
-        {"y": 0.15, "road": 6000, "cess": 16200, "net": 37800, "plots": "54 plots\n(exact 0 rem)"},
+        {"y": 1.05, "road": 6000, "cess": 27000, "net": 27000, "plots": t["plots_rem"]},
+        {"y": 0.15, "road": 6000, "cess": 16200, "net": 37800, "plots": t["plots_exact"]},
     ]
     bar_h = 0.52
     for g in groups:
@@ -137,16 +257,16 @@ def build_fig1():
 
         ax1.text(g["road"] / 2, y, "6k\n10%", ha="center", va="center",
                  fontsize=8, fontweight="bold", color="white")
-        ax1.text(g["road"] + g["cess"] / 2, y, f"Cessions\n{g['cess']:,} m2s",
+        ax1.text(g["road"] + g["cess"] / 2, y, t["cess_bar"].format(cess=g["cess"]),
                  ha="center", va="center", fontsize=8.5, fontweight="bold", color="white")
         ax1.text(g["road"] + g["cess"] + g["net"] / 2, y,
-                 f"Net: {g['net']:,} m2s\n{g['plots']}",
+                 t["net_bar"].format(net=g["net"], plots=g["plots"]),
                  ha="center", va="center", fontsize=8.5, fontweight="bold", color="white")
 
     legend_handles = [
-        patches.Patch(color=C_ROAD, label="Viario (10%)"),
-        patches.Patch(color=C_CESS, label="Public Cessions (45 m2s/100 m2c)"),
-        patches.Patch(color=C_NET, label="Net Lucrative Land (>=700 m2s/plot)"),
+        patches.Patch(color=C_ROAD, label=t["leg_road"]),
+        patches.Patch(color=C_CESS, label=t["leg_cess"]),
+        patches.Patch(color=C_NET, label=t["leg_net"]),
     ]
     ax1.legend(handles=legend_handles, loc="upper center", bbox_to_anchor=(0.5, 1.02),
                ncol=2, frameon=True, facecolor="#F8FAFC", edgecolor="#CBD5E1", fontsize=8)
@@ -154,16 +274,14 @@ def build_fig1():
     # --- Panel B: 2x2 Massing Profiles on Representative Plot (S1..S4) ---
     ax2_outer = fig.add_subplot(gs[1])
     ax2_outer.axis("off")
-    ax2_outer.set_title("2. Vertical Massing Across the 4 Scenarios\n"
-                        "Dashed Red Line = 2-Floor Cap (Np = 2)",
-                        fontsize=11, fontweight="bold", color=C_DARK, pad=14)
+    ax2_outer.set_title(t["title2"], fontsize=11, fontweight="bold", color=C_DARK, pad=14)
 
     sub_gs = gs[1].subgridspec(2, 2, wspace=0.22, hspace=0.35)
     scenarios = [
-        {"id": "S1: Ce=1.0, Ocup=90%", "ocup": 0.90, "exact": 2.47, "ceil": 3, "plots": 38, "ok": False, "loss": "-19% lost"},
-        {"id": "S2: Ce=1.0, Ocup=50%", "ocup": 0.50, "exact": 4.44, "ceil": 5, "plots": 38, "ok": False, "loss": "-55% lost"},
-        {"id": "S3: Ce=0.6, Ocup=90%", "ocup": 0.90, "exact": 1.06, "ceil": 2, "plots": 54, "ok": True,  "loss": "0% lost"},
-        {"id": "S4: Ce=0.6, Ocup=50%", "ocup": 0.50, "exact": 1.90, "ceil": 2, "plots": 54, "ok": True,  "loss": "0% lost"},
+        {"id": t["sc_prefix"][0], "ocup": 0.90, "exact": 2.47, "ceil": 3, "plots": 38, "ok": False, "loss": t["sc_loss"][0]},
+        {"id": t["sc_prefix"][1], "ocup": 0.50, "exact": 4.44, "ceil": 5, "plots": 38, "ok": False, "loss": t["sc_loss"][1]},
+        {"id": t["sc_prefix"][2], "ocup": 0.90, "exact": 1.06, "ceil": 2, "plots": 54, "ok": True,  "loss": t["sc_loss"][2]},
+        {"id": t["sc_prefix"][3], "ocup": 0.50, "exact": 1.90, "ceil": 2, "plots": 54, "ok": True,  "loss": t["sc_loss"][3]},
     ]
 
     for idx, sc in enumerate(scenarios):
@@ -213,19 +331,20 @@ def build_fig1():
         badge_bg = "#DCFCE7" if sc["ok"] else "#FEE2E2"
         ax.set_title(sc["id"], fontsize=9, fontweight="bold", color=C_DARK, pad=5)
         ax.text(0.5, 5.75,
-                f"{sc['exact']:.2f} -> {sc['ceil']} fl | {sc['plots']} plots  ({sc['loss']})",
-                ha="center", va="center", fontsize=7.6, fontweight="bold", color=badge_col,
+                t["badge_fmt"].format(exact=sc["exact"], ceil=sc["ceil"], plots=sc["plots"], loss=sc["loss"]),
+                ha="center", va="center", fontsize=7.4, fontweight="bold", color=badge_col,
                 bbox=dict(boxstyle="round,pad=0.22", fc=badge_bg, ec=badge_col, lw=0.9))
 
     out_path = os.path.join(OUT_DIR, "fig1_problem_and_scenarios.svg")
     fig.savefig(out_path, format="svg", bbox_inches="tight", facecolor="white")
     make_svg_responsive(out_path)
-    verify_in_memory_ocr(fig, ["60,000", "38 plots", "54 plots", "2.47", "4.44", "1.06", "1.90"], "fig1")
+    verify_in_memory_ocr(fig, t["ocr"], "fig1")
     plt.close(fig)
 
 
 # %% FIGURE 2: Constrained Parameter Space & Solution Pathways (Np <= 2)
 def build_fig2():
+    t = TXT["fig2"]
     fig, ax = plt.subplots(figsize=(6.4, 7.6), facecolor="white")
 
     ocup = np.linspace(0.30, 1.15, 400)
@@ -263,17 +382,17 @@ def build_fig2():
 
     # Contour curve labels placed cleanly at x = 34% or x = 96%
     ax.text(33, ce_bound(0.33, 1.0) - 0.045, "Np=1", fontsize=8, fontweight="bold", color="#047857")
-    ax.text(33, ce_bound(0.33, 2.0) + 0.025, "Np=2 Limit", fontsize=8.5, fontweight="bold", color="#15803D")
+    ax.text(33, ce_bound(0.33, 2.0) + 0.025, t["np2_limit"], fontsize=8.5, fontweight="bold", color="#15803D")
     ax.text(33, ce_bound(0.33, 3.0) + 0.025, "Np=3", fontsize=8, fontweight="bold", color="#B91C1C")
     ax.text(33, ce_bound(0.33, 4.0) + 0.025, "Np=4", fontsize=8, fontweight="bold", color="#991B1B")
     ax.text(33, ce_bound(0.33, 5.0) + 0.025, "Np=5", fontsize=8, fontweight="bold", color="#7F1D1D")
 
     # Region captions
-    ax.text(72.5, 1.225, "Ley 4/2017 Cap (Ce <= 1.20)", fontsize=8, fontweight="bold",
+    ax.text(72.5, 1.225, t["cap_ley"], fontsize=8, fontweight="bold",
             color=C_GOLD, ha="center", va="bottom")
-    ax.text(108, 0.78, "Physical\nWall\n(>100%)", fontsize=8.5, fontweight="bold",
+    ax.text(108, 0.78, t["wall"], fontsize=8.5, fontweight="bold",
             color=C_DARK, ha="center", va="center")
-    ax.text(72.5, 0.42, "FEASIBLE\n(Np <= 2)", fontsize=10, fontweight="bold",
+    ax.text(72.5, 0.42, t["feasible"], fontsize=10, fontweight="bold",
             color="#166534", ha="center", va="center",
             bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="#15803D", alpha=0.9))
 
@@ -283,10 +402,10 @@ def build_fig2():
         ("S2", 50, 1.00, "#DC2626", "o", (-16, 9)),
         ("S3", 90, 0.60, "#15803D", "o", (-14, -15)),
         ("S4", 50, 0.60, "#15803D", "o", (-14, -15)),
-        ("Wall\n(111%)", 111.1, 1.00, "#475569", "X", (-8, -26)),
-        ("Fix B1\n(0.895)", 90, 0.895, "#2563EB", "D", (8, -4)),
-        ("Fix B2\n(0.621)", 50, 0.621, "#2563EB", "D", (-38, 8)),
-        ("Fix C\n(85%,0.85)", 85, 0.85, "#7C3AED", "*", (-56, -20)),
+        (t["pt_wall"], 111.1, 1.00, "#475569", "X", (-8, -26)),
+        (t["pt_b1"], 90, 0.895, "#2563EB", "D", (8, -4)),
+        (t["pt_b2"], 50, 0.621, "#2563EB", "D", (-42, 8)),
+        (t["pt_c"], 85, 0.85, "#7C3AED", "*", (-62, -20)),
     ]
     for label, px, py, col, mk, offset in pts:
         ms = 11 if mk == "*" else 8
@@ -314,34 +433,33 @@ def build_fig2():
 
     ax.set_xlim(30, 116)
     ax.set_ylim(0.30, 1.28)
-    ax.set_xlabel("Plot Occupancy Coefficient C_ocup (%)", fontsize=9.5, fontweight="bold", color=C_DARK)
-    ax.set_ylabel("Gross Building Coefficient Ce (m2c / m2s)", fontsize=9.5, fontweight="bold", color=C_DARK)
-    ax.set_title("Feasible Design Space Under 2-Floor Cap (Np <= 2)\n"
-                 "Why Occupancy Alone Fails for Ce = 1.0 & Solution Paths",
-                 fontsize=11, fontweight="bold", color=C_DARK, pad=10)
+    ax.set_xlabel(t["xlabel"], fontsize=9.5, fontweight="bold", color=C_DARK)
+    ax.set_ylabel(t["ylabel"], fontsize=9.5, fontweight="bold", color=C_DARK)
+    ax.set_title(t["title"], fontsize=10.8, fontweight="bold", color=C_DARK, pad=10)
     ax.grid(True, linestyle=":", color="#CBD5E1", alpha=0.6)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
     # Legend below plot for clean mobile reading
     leg_items = [
-        Line2D([0], [0], marker="o", color="w", markerfacecolor="#DC2626", markersize=8, label="S1, S2 (Unfeasible Np=2)"),
-        Line2D([0], [0], marker="o", color="w", markerfacecolor="#15803D", markersize=8, label="S3, S4 (Feasible Np<=2)"),
-        Line2D([0], [0], marker="D", color="w", markerfacecolor="#2563EB", markersize=7, label="Reduce Ce Only (Fix B)"),
-        Line2D([0], [0], marker="*", color="w", markerfacecolor="#7C3AED", markersize=10, label="Combined Fix (C_ocup + Ce)"),
+        Line2D([0], [0], marker="o", color="w", markerfacecolor="#DC2626", markersize=8, label=t["leg_s12"]),
+        Line2D([0], [0], marker="o", color="w", markerfacecolor="#15803D", markersize=8, label=t["leg_s34"]),
+        Line2D([0], [0], marker="D", color="w", markerfacecolor="#2563EB", markersize=7, label=t["leg_b"]),
+        Line2D([0], [0], marker="*", color="w", markerfacecolor="#7C3AED", markersize=10, label=t["leg_c"]),
     ]
     ax.legend(handles=leg_items, loc="upper center", bbox_to_anchor=(0.5, -0.11),
-              ncol=2, frameon=True, facecolor="#F8FAFC", edgecolor="#CBD5E1", fontsize=8.5)
+              ncol=2, frameon=True, facecolor="#F8FAFC", edgecolor="#CBD5E1", fontsize=8.3)
 
     out_path = os.path.join(OUT_DIR, "fig2_feasible_space_2floors.svg")
     fig.savefig(out_path, format="svg", bbox_inches="tight", facecolor="white")
     make_svg_responsive(out_path)
-    verify_in_memory_ocr(fig, ["Feasible", "Np=2", "S1", "S2", "S3", "S4", "111%"], "fig2")
+    verify_in_memory_ocr(fig, t["ocr"], "fig2")
     plt.close(fig)
 
 
 # %% FIGURE 3: Discrete Plot Staircase & Materializable vs Unbuilt Deficit
 def build_fig3():
+    t = TXT["fig3"]
     fig = plt.figure(figsize=(6.4, 8.6), facecolor="white")
     gs = fig.add_gridspec(2, 1, height_ratios=[1.05, 1.0], hspace=0.40)
 
@@ -352,14 +470,14 @@ def build_fig3():
     n_exact = s_neta / 700.0
     n_floor = np.floor(n_exact)
 
-    ax1.plot(ce_grid, n_exact, color="#94A3B8", ls="--", lw=1.4, label="Continuous S_neta / 700")
-    ax1.step(ce_grid, n_floor, where="post", color=C_NET, lw=2.2, label="Discrete Plots floor(S_neta / 700)")
+    ax1.plot(ce_grid, n_exact, color="#94A3B8", ls="--", lw=1.4, label=t["leg_cont"])
+    ax1.step(ce_grid, n_floor, where="post", color=C_NET, lw=2.2, label=t["leg_step"])
 
     # Key operating points
     pts_a = [
-        (0.60, 54, "Ce=0.6 -> 54.00\n(Exact 0 rem)", (10, 10), "#15803D"),
-        (0.895, 42, "Fix B1 (0.895)\n-> 42 plots", (-62, -26), "#7C3AED"),
-        (1.00, 38, "Ce=1.0 -> 38.57\n(38 + 400 m2s rem)", (-78, -28), "#DC2626"),
+        (0.60, 54, t["ann_06"], (10, 10), "#15803D"),
+        (0.895, 42, t["ann_b1"], (-70, -26), "#7C3AED"),
+        (1.00, 38, t["ann_10"], (-86, -28), "#DC2626"),
     ]
     for cx, cy, txt, off, col in pts_a:
         ax1.plot(cx, cy, "o", color=col, markersize=7, markeredgecolor="white", zorder=6)
@@ -371,11 +489,9 @@ def build_fig3():
 
     ax1.set_xlim(0.40, 1.20)
     ax1.set_ylim(26, 65)
-    ax1.set_xlabel("Gross Building Coefficient Ce (m2c / m2s)", fontsize=9, fontweight="bold", color=C_DARK)
-    ax1.set_ylabel("Resulting Plots (N_parcelas)", fontsize=9, fontweight="bold", color=C_DARK)
-    ax1.set_title("1. Discrete Plot Staircase: S_min = 700 m2s Quantization\n"
-                  "Higher Ce Reduces Net Land and Plot Count",
-                  fontsize=10.5, fontweight="bold", color=C_DARK, pad=8)
+    ax1.set_xlabel(t["xlabel1"], fontsize=9, fontweight="bold", color=C_DARK)
+    ax1.set_ylabel(t["ylabel1"], fontsize=9, fontweight="bold", color=C_DARK)
+    ax1.set_title(t["title1"], fontsize=10.3, fontweight="bold", color=C_DARK, pad=8)
     ax1.grid(True, ls=":", color="#CBD5E1", alpha=0.8)
     ax1.spines["top"].set_visible(False)
     ax1.spines["right"].set_visible(False)
@@ -383,15 +499,15 @@ def build_fig3():
 
     # --- Panel B: Buildability Materialized vs Deficit under Np = 2 ---
     ax2 = fig.add_subplot(gs[1])
-    labels = ["S1\n(1.0, 90%)", "S2\n(1.0, 50%)", "S3\n(0.6, 90%)", "S4\n(0.6, 50%)", "Fix C\n(0.85, 85%)"]
+    labels = t["xlabels"]
     built = np.array([48.6, 27.0, 36.0, 36.0, 51.0])     # in 1,000 m2c
     deficit = np.array([11.4, 33.0, 0.0, 0.0, 0.0])      # unbuilt / TAU / subsoil gap
     x = np.arange(len(labels))
     w = 0.56
 
-    ax2.bar(x, built, width=w, color=C_NET, edgecolor="white", label="Built in 2 Floors (E_mat)")
+    ax2.bar(x, built, width=w, color=C_NET, edgecolor="white", label=t["leg_built"])
     ax2.bar(x, deficit, width=w, bottom=built, color="#FCA5A5", edgecolor="#DC2626",
-            hatch="///", lw=1.1, label="Unbuilt Deficit (TAU / Subsoil)")
+            hatch="///", lw=1.1, label=t["leg_def"])
 
     for i in range(len(labels)):
         ax2.text(x[i], built[i] / 2.0, f"{built[i]:.1f}k", ha="center", va="center",
@@ -407,10 +523,8 @@ def build_fig3():
     ax2.set_xticks(x)
     ax2.set_xticklabels(labels, fontsize=8.5, fontweight="bold", color=C_DARK)
     ax2.set_ylim(0, 72)
-    ax2.set_ylabel("Floor Area (x1,000 m2c)", fontsize=9, fontweight="bold", color=C_DARK)
-    ax2.set_title("2. Theoretical vs Materialized Floor Area (Np = 2)\n"
-                  "Combined Fix (0.85, 85%) Builds 51.0k m2c in 2 Floors",
-                  fontsize=10.5, fontweight="bold", color=C_DARK, pad=8)
+    ax2.set_ylabel(t["ylabel2"], fontsize=9, fontweight="bold", color=C_DARK)
+    ax2.set_title(t["title2"], fontsize=10.3, fontweight="bold", color=C_DARK, pad=8)
     ax2.grid(axis="y", ls=":", color="#CBD5E1", alpha=0.8)
     ax2.spines["top"].set_visible(False)
     ax2.spines["right"].set_visible(False)
@@ -419,7 +533,7 @@ def build_fig3():
     out_path = os.path.join(OUT_DIR, "fig3_discrete_and_deficits.svg")
     fig.savefig(out_path, format="svg", bbox_inches="tight", facecolor="white")
     make_svg_responsive(out_path)
-    verify_in_memory_ocr(fig, ["54", "38", "48.6k", "27.0k", "51.0k", "-19%", "-55%"], "fig3")
+    verify_in_memory_ocr(fig, t["ocr"], "fig3")
     plt.close(fig)
 
 

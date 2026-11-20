@@ -5,6 +5,7 @@
 		{"id":"8a41f90c3b2e1101","x":860,"y":-20,"width":400,"height":375,"type":"group","color":"3","label":"# INTERNAL ONLY — DO NOT CONVERT TO LATEX"},
 		{"id":"74ac7cf29736c577","x":1280,"y":-20,"width":420,"height":540,"type":"group","label":"3. Market (Export to LaTeX)"},
 		{"id":"3e952a0c8b5fa525","x":1740,"y":0,"width":420,"height":375,"type":"group","label":"4. Affordability (Export to LaTeX)"},
+		{"id":"5e90c1a2b4d78801","x":2200,"y":0,"width":420,"height":375,"type":"group","color":"4","label":"5. Theory vs. Reality (Export to LaTeX)"},
 		{"id":"master","type":"file","file":"Tareas/Tarea_4/draft_notes/index.md","x":380,"y":-220,"width":480,"height":110,"color":"6"},
 		{"id":"sec1","type":"file","file":"Tareas/Tarea_4/draft_notes/sec1_statutory_model.md","x":0,"y":0,"width":360,"height":90,"color":"5"},
 		{"id":"sub1_1","type":"text","text":"**sub1_1_sector_specs.tex**\n6 ha, 10% Roads, 0.45 Cessions, 700 m2s\n`BCR` & `Gross/Net FAR` Legal Glossary (`fig1`)","x":0,"y":120,"width":360,"height":95},
@@ -23,13 +24,17 @@
 		{"id":"sub4_3","type":"text","text":"**sub3_3_market_priors.tex**\nExpert Market Sensitivity Expectations\n(Combining Comps & Marginal Price Intuition)","x":1300,"y":405,"width":380,"height":95},
 		{"id":"sec5","type":"file","file":"Tareas/Tarea_4/draft_notes/sec4_mixed_vpo_synthesis.md","x":1760,"y":20,"width":380,"height":90,"color":"6"},
 		{"id":"sub5_1","type":"text","text":"**sub4_1_decoupled_frontier.tex**\nDecoupled Zone Coverages (`BCR_M`, `BCR_V`)\n40% Statutory VPO Measured on `m2t`","x":1760,"y":140,"width":380,"height":95},
-		{"id":"sub5_2","type":"text","text":"**sub4_2_vpo_2f_vs_5f.tex**\n2-Floor VPO (`44.7M`) vs 5-Floor Towers (`47.1M`)\nBoth Including Shared Basement Garages (`fig7`)","x":1760,"y":260,"width":380,"height":95}
+		{"id":"sub5_2","type":"text","text":"**sub4_2_vpo_2f_vs_5f.tex**\n2-Floor VPO (`44.7M`) vs 5-Floor Towers (`47.1M`)\nBoth Including Shared Basement Garages (`fig7`)","x":1760,"y":260,"width":380,"height":95},
+		{"id":"sec6","type":"file","file":"Tareas/Tarea_4/draft_notes/sec5_theory_vs_reality.md","x":2220,"y":20,"width":380,"height":90,"color":"4"},
+		{"id":"sub6_1","type":"text","text":"**sub5_1_land_budget_gap.tex**\nWhy `10%` Roads & Min `EL/D/I` Fall Short\n(`UA-1` `6.83 ha`, `SSU 5.20` `6.03 ha`, `TSJC 116/2014`)","x":2220,"y":140,"width":380,"height":95},
+		{"id":"sub6_2","type":"text","text":"**sub5_2_aerial_3d_proof.tex**\nGrafcan OrtoExpress vs Google Earth 3D\n(`fig8` + 3D `El Tablero` Plateau Validation)","x":2220,"y":260,"width":380,"height":95}
 	],
 	"edges":[
 		{"id":"e_m_1","fromNode":"master","fromSide":"bottom","toNode":"sec1","toSide":"top"},
 		{"id":"e_m_2","fromNode":"master","fromSide":"bottom","toNode":"sec2","toSide":"top"},
 		{"id":"e_m_4","fromNode":"master","fromSide":"bottom","toNode":"sec4","toSide":"top"},
 		{"id":"e_m_5","fromNode":"master","fromSide":"bottom","toNode":"sec5","toSide":"top"},
+		{"id":"e_m_6","fromNode":"master","fromSide":"bottom","toNode":"sec6","toSide":"top"},
 		{"id":"e_1_1","fromNode":"sec1","fromSide":"bottom","toNode":"sub1_1","toSide":"top"},
 		{"id":"e_1_2","fromNode":"sub1_1","fromSide":"bottom","toNode":"sub1_2","toSide":"top"},
 		{"id":"e_1_3","fromNode":"sub1_2","fromSide":"bottom","toNode":"sub1_3","toSide":"top"},
@@ -43,10 +48,13 @@
 		{"id":"e_4_3","fromNode":"sub4_2","fromSide":"bottom","toNode":"sub4_3","toSide":"top"},
 		{"id":"e_5_1","fromNode":"sec5","fromSide":"bottom","toNode":"sub5_1","toSide":"top"},
 		{"id":"e_5_2","fromNode":"sub5_1","fromSide":"bottom","toNode":"sub5_2","toSide":"top"},
+		{"id":"e_6_1","fromNode":"sec6","fromSide":"bottom","toNode":"sub6_1","toSide":"top"},
+		{"id":"e_6_2","fromNode":"sub6_1","fromSide":"bottom","toNode":"sub6_2","toSide":"top"},
 		{"id":"j_1","fromNode":"sub1_2","fromSide":"right","toNode":"sub2_1","toSide":"left","color":"1","label":"Side Jump: Deficit Outlets"},
 		{"id":"j_2","fromNode":"sub1_3","fromSide":"bottom","toNode":"sub4_1","toSide":"top","color":"2","label":"Side Jump: Pareto Frontier -> Market Peak"},
 		{"id":"j_3","fromNode":"sub2_2","fromSide":"bottom","toNode":"sub5_1","toSide":"top","color":"6","label":"Side Jump: 10% PMS + 40% VPO"},
 		{"id":"j_4","fromNode":"sub4_2","fromSide":"right","toNode":"sub5_2","toSide":"left","color":"5","label":"Side Jump: Shared Garage Cost"},
+		{"id":"j_5","fromNode":"sub5_2","fromSide":"right","toNode":"sub6_1","toSide":"left","color":"4","label":"Side Jump: Model vs Real SC Sector"},
 		{"id":"j_int","fromNode":"int_scipy","fromSide":"right","toNode":"sub4_1","toSide":"left","color":"3","label":"[Internal Verification Only]"}
 	]
 }

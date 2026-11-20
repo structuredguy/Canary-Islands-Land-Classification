@@ -10,6 +10,7 @@ with in-memory RapidOCR collision verification (no PNG saved).
 """
 
 import io
+import json
 import os
 import re
 import math
@@ -22,8 +23,56 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-# %% Global Configuration & Fixed Statutory Constants
-OUT_DIR = os.path.dirname(os.path.abspath(__file__))
+# %% Global Configuration, Bilingual JSON Preamble & Fixed Statutory Constants
+LANG = os.environ.get("PLOT_LANG", "EN")  # Toggle "EN" / "ES"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUT_DIR = os.environ.get("PLOT_OUT_DIR", SCRIPT_DIR)
+
+LABELS_EN_JSON = r"""
+{
+  "title1": "1. Unknown Price Function Fitted from Sparse Comps\nSciPy PchipInterpolator + Epistemic Uncertainty",
+  "xlabel1": "Plot Occupancy BCR / C_ocup (%)",
+  "ylabel1": "Market Price (EUR / m2t)",
+  "leg_band": "Market Uncertainty Band",
+  "leg_pchip": "PCHIP Surrogate Price(BCR)",
+  "leg_comps": "Observed Comps (5 pts)",
+  "leg_cost": "Build Cost (1,400 EUR/m2t)",
+  "title2": "2. Promoter Net Profit vs. BCR (10% Muni Cession)\nInterior Economic Peak vs. Boundary Buildability Max",
+  "xlabel2": "Plot Occupancy BCR (%) along Np = 2 Frontier",
+  "ylabel2": "Promoter Net Margin (M EUR)",
+  "leg_p1090": "10th-90th Percentile Margin",
+  "leg_mean": "Expected Net Margin E[Profit]",
+  "leg_cvar": "Worst-20% CVaR Margin",
+  "ann_pmax": "Profit Max (DE)\n{oc:.1f}% | FAR={ce:.3f}\n{prof:.1f}M EUR",
+  "ann_ymax": "Max m2t (SLSQP)\n90% | FAR=0.895\n{prof:.1f}M EUR",
+  "ocr": ["PCHIP", "Profit Max", "Max m2t", "90%"]
+}
+"""
+
+LABELS_ES_JSON = r"""
+{
+  "title1": "1. Función de Precio Ajustada desde Testigos Dispersos\nInterpolación PCHIP + Incertidumbre Epistémica",
+  "xlabel1": "Ocupación de Parcela BCR / C_ocup (%)",
+  "ylabel1": "Precio de Mercado (EUR / m2c)",
+  "leg_band": "Banda de Incertidumbre de Mercado",
+  "leg_pchip": "Curva Sustituta PCHIP Precio(BCR)",
+  "leg_comps": "Testigos Observados (5 ptos)",
+  "leg_cost": "Coste Obra (1.400 EUR/m2c)",
+  "title2": "2. Margen Neto del Promotor frente a BCR (10% Cesión PMS)\nÓptimo Económico Interior frente a Techo Máximo Normativo",
+  "xlabel2": "Ocupación BCR (%) en Frontera Np = 2",
+  "ylabel2": "Margen Neto Promotor (M EUR)",
+  "leg_p1090": "Banda Percentil 10-90 Margen",
+  "leg_mean": "Margen Neto Esperado E[Beneficio]",
+  "leg_cvar": "Cola Pesimista CVaR 20%",
+  "ann_pmax": "Máx Beneficio (DE)\n{oc:.1f}% | FAR={ce:.3f}\n{prof:.1f}M EUR",
+  "ann_ymax": "Máx m2c (SLSQP)\n90% | FAR=0,895\n{prof:.1f}M EUR",
+  "ocr": ["PCHIP", "Beneficio", "90%"]
+}
+"""
+
+TXT = json.loads(LABELS_EN_JSON)
+if LANG.upper() == "ES":
+    TXT.update(json.loads(LABELS_ES_JSON))
 
 S_BRUTA = 60000.0       # m2s (6 ha)
 S_VIARIO = 6000.0       # m2s (10%)
@@ -250,18 +299,16 @@ def build_fig4(yield_opt, profit_opt, stoch):
     # --- Panel A: Sparse Comps + PCHIP Surrogate + Uncertainty ---
     ax1 = fig.add_subplot(gs[0])
     ax1.fill_between(oc_pct, stoch["base_p"] - 1.5 * stoch["sigma_p"], stoch["base_p"] + 1.5 * stoch["sigma_p"],
-                     color="#DBEAFE", alpha=0.85, label="Market Uncertainty Band")
-    ax1.plot(oc_pct, stoch["base_p"], color="#2563EB", lw=2.2, label="PCHIP Surrogate Price(C_ocup)")
-    ax1.plot(OBS_OCUP * 100.0, OBS_PRICE, "o", color="#0F172A", ms=7, zorder=6, label="Observed Comps (5 pts)")
-    ax1.axhline(COST_BUILD_M2T, color="#DC2626", ls="--", lw=1.3, label="Build Cost (1,400 EUR/m2t)")
+                     color="#DBEAFE", alpha=0.85, label=TXT["leg_band"])
+    ax1.plot(oc_pct, stoch["base_p"], color="#2563EB", lw=2.2, label=TXT["leg_pchip"])
+    ax1.plot(OBS_OCUP * 100.0, OBS_PRICE, "o", color="#0F172A", ms=7, zorder=6, label=TXT["leg_comps"])
+    ax1.axhline(COST_BUILD_M2T, color="#DC2626", ls="--", lw=1.3, label=TXT["leg_cost"])
 
     ax1.set_xlim(38, 92)
     ax1.set_ylim(1200, 3800)
-    ax1.set_xlabel("Plot Occupancy C_ocup (%)", fontsize=9, fontweight="bold", color="#0F172A")
-    ax1.set_ylabel("Market Price (EUR / m2t)", fontsize=9, fontweight="bold", color="#0F172A")
-    ax1.set_title("1. Unknown Price Function Fitted from Sparse Comps\n"
-                  "SciPy PchipInterpolator + Epistemic Uncertainty",
-                  fontsize=10.5, fontweight="bold", color="#0F172A", pad=8)
+    ax1.set_xlabel(TXT["xlabel1"], fontsize=9, fontweight="bold", color="#0F172A")
+    ax1.set_ylabel(TXT["ylabel1"], fontsize=9, fontweight="bold", color="#0F172A")
+    ax1.set_title(TXT["title1"], fontsize=10.2, fontweight="bold", color="#0F172A", pad=8)
     ax1.grid(True, ls=":", color="#CBD5E1", alpha=0.8)
     ax1.spines["top"].set_visible(False)
     ax1.spines["right"].set_visible(False)
@@ -270,9 +317,9 @@ def build_fig4(yield_opt, profit_opt, stoch):
     # --- Panel B: Promoter Net Margin Along 2-Floor Frontier ---
     ax2 = fig.add_subplot(gs[1])
     ax2.fill_between(oc_pct, stoch["p10_profit"], stoch["p90_profit"],
-                     color="#DCFCE7", alpha=0.85, label="10th-90th Percentile Margin")
-    ax2.plot(oc_pct, stoch["mean_profit"], color="#15803D", lw=2.3, label="Expected Net Margin E[Profit]")
-    ax2.plot(oc_pct, stoch["cvar20"], color="#7C3AED", lw=1.8, ls="--", label="Worst-20% CVaR Margin")
+                     color="#DCFCE7", alpha=0.85, label=TXT["leg_p1090"])
+    ax2.plot(oc_pct, stoch["mean_profit"], color="#15803D", lw=2.3, label=TXT["leg_mean"])
+    ax2.plot(oc_pct, stoch["cvar20"], color="#7C3AED", lw=1.8, ls="--", label=TXT["leg_cvar"])
 
     # Mark key points
     y_oc = yield_opt["C_ocup"] * 100.0
@@ -288,14 +335,14 @@ def build_fig4(yield_opt, profit_opt, stoch):
     c_prof = float(stoch["mean_profit"][c_idx])
 
     ax2.plot(p_oc, p_prof, "*", color="#D97706", ms=12, markeredgecolor="#0F172A", zorder=7)
-    ax2.annotate(f"Profit Max (DE)\n{p_oc:.1f}% | Ce={profit_opt['Ce']:.3f}\n{p_prof:.1f}M EUR",
+    ax2.annotate(TXT["ann_pmax"].format(oc=p_oc, ce=profit_opt["Ce"], prof=p_prof),
                  (p_oc, p_prof), xytext=(12, -8), textcoords="offset points",
                  fontsize=7.8, fontweight="bold", color="#B45309",
                  bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="#D97706"),
                  arrowprops=dict(arrowstyle="->", color="#D97706"), zorder=8)
 
     ax2.plot(y_oc, y_prof, "s", color="#DC2626", ms=8, markeredgecolor="white", zorder=7)
-    ax2.annotate(f"Max m2t (SLSQP)\n90% | Ce=0.895\n{y_prof:.1f}M EUR",
+    ax2.annotate(TXT["ann_ymax"].format(prof=y_prof),
                  (y_oc, y_prof), xytext=(-88, 22), textcoords="offset points",
                  fontsize=7.8, fontweight="bold", color="#B91C1C",
                  bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="#DC2626"),
@@ -303,11 +350,9 @@ def build_fig4(yield_opt, profit_opt, stoch):
 
     ax2.set_xlim(38, 92)
     ax2.set_ylim(20, 78)
-    ax2.set_xlabel("Plot Occupancy C_ocup (%) along Np = 2 Frontier", fontsize=9, fontweight="bold", color="#0F172A")
-    ax2.set_ylabel("Promoter Net Margin (M EUR)", fontsize=9, fontweight="bold", color="#0F172A")
-    ax2.set_title("2. Promoter Net Profit vs. Occupancy (10% Muni Cession)\n"
-                  "Interior Economic Peak vs. Boundary Buildability Max",
-                  fontsize=10.5, fontweight="bold", color="#0F172A", pad=8)
+    ax2.set_xlabel(TXT["xlabel2"], fontsize=9, fontweight="bold", color="#0F172A")
+    ax2.set_ylabel(TXT["ylabel2"], fontsize=9, fontweight="bold", color="#0F172A")
+    ax2.set_title(TXT["title2"], fontsize=10.2, fontweight="bold", color="#0F172A", pad=8)
     ax2.grid(True, ls=":", color="#CBD5E1", alpha=0.8)
     ax2.spines["top"].set_visible(False)
     ax2.spines["right"].set_visible(False)
@@ -316,7 +361,7 @@ def build_fig4(yield_opt, profit_opt, stoch):
     out_path = os.path.join(OUT_DIR, "fig4_scipy_promoter_opt.svg")
     fig.savefig(out_path, format="svg", bbox_inches="tight", facecolor="white")
     make_svg_responsive(out_path)
-    verify_in_memory_ocr(fig, ["PCHIP", "Profit Max", "Max m2t", "90%"], "fig4_scipy")
+    verify_in_memory_ocr(fig, TXT["ocr"], "fig4_scipy")
     plt.close(fig)
     return out_path
 

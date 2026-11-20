@@ -9,6 +9,7 @@ Generates mobile-optimized fig6_cost_curve_sensitivity.svg (RapidOCR verified).
 """
 
 import io
+import json
 import os
 import re
 import math
@@ -23,10 +24,67 @@ from adjustText import adjust_text
 
 import quantile_profit_optimizer as qpo
 
-# %% 0. Paths & Constants
-OUT_DIR = os.path.dirname(os.path.abspath(__file__))
-XLSX_PATH = os.path.join(OUT_DIR, "market_price_quantiles_sim.xlsx")
+# %% 0. Paths, Bilingual JSON Preamble & Constants
+LANG = os.environ.get("PLOT_LANG", "EN")  # Toggle "EN" / "ES"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUT_DIR = os.environ.get("PLOT_OUT_DIR", SCRIPT_DIR)
+XLSX_PATH = os.path.join(SCRIPT_DIR, "market_price_quantiles_sim.xlsx")
 SVG_PATH = os.path.join(OUT_DIR, "fig6_cost_curve_sensitivity.svg")
+
+LABELS_EN_JSON = r"""
+{
+  "models": {
+    "const": "Constant (1,400)",
+    "dec": "Decreasing (Facade+Scale)",
+    "ushape": "U-Shape (+Basement >72%)"
+  },
+  "tags": {
+    "const": "Const",
+    "dec": "Dec",
+    "ushape": "U-Shape"
+  },
+  "garage_box": "Garage\nthreshold\n(BCR>72%)",
+  "title1": "1. How Build Cost Varies with Gross FAR (Np = 2)",
+  "xlabel1": "Gross FAR (Ce, m2t / m2s) on 2-Floor Frontier",
+  "ylabel1": "Hard Build Cost (EUR/m2t)",
+  "title2": "2. Shift in Optimal Gross FAR* Under Cost Curves",
+  "xlabel2": "Gross FAR (Ce, m2t / m2s) on 2-Floor Frontier",
+  "ylabel2": "Expected Net Margin E[Pi] (M EUR)",
+  "ocr": ["Const:", "Dec:", "U-Shape:", "Garage"]
+}
+"""
+
+LABELS_ES_JSON = r"""
+{
+  "models": {
+    "const": "Constante (1.400)",
+    "dec": "Decreciente (Envolvente+Escala)",
+    "ushape": "Forma en U (+Sótano BCR>72%)"
+  },
+  "tags": {
+    "const": "Const",
+    "dec": "Decrec",
+    "ushape": "En U"
+  },
+  "garage_box": "Umbral\ngaraje\n(BCR>72%)",
+  "title1": "1. Variación del Coste Constructivo con Gross FAR (Np = 2)",
+  "xlabel1": "Gross FAR (Ce, m2c / m2s) en Frontera de 2 Plantas",
+  "ylabel1": "Coste de Construcción (EUR/m2c)",
+  "title2": "2. Desplazamiento del Óptimo Gross FAR* según Curva de Costes",
+  "xlabel2": "Gross FAR (Ce, m2c / m2s) en Frontera de 2 Plantas",
+  "ylabel2": "Margen Neto Esperado E[Pi] (M EUR)",
+  "ocr": ["Const:", "Decrec:", "En U:", "garaje"]
+}
+"""
+
+TXT = json.loads(LABELS_EN_JSON)
+if LANG.upper() == "ES":
+    _es = json.loads(LABELS_ES_JSON)
+    for _k, _v in _es.items():
+        if isinstance(_v, dict) and isinstance(TXT.get(_k), dict):
+            TXT[_k].update(_v)
+        else:
+            TXT[_k] = _v
 
 Z_75 = float(norm.ppf(0.75))
 
@@ -40,9 +98,9 @@ def build_cost_models(ce, oc):
     basement_share = 1.0 / (1.0 + np.exp(-22.0 * (oc - 0.72)))
     c_ushape = c_dec + 260.0 * basement_share
     return {
-        "Constant (1,400)": c_const,
-        "Decreasing (Facade+Scale)": c_dec,
-        "U-Shape (+Basement >72%)": c_ushape,
+        "const": c_const,
+        "dec": c_dec,
+        "ushape": c_ushape,
     }
 
 
@@ -117,14 +175,14 @@ if __name__ == "__main__":
 
     models = build_cost_models(ce, oc)
     colors = {
-        "Constant (1,400)": "#64748B",
-        "Decreasing (Facade+Scale)": "#0284C7",
-        "U-Shape (+Basement >72%)": "#DC2626",
+        "const": "#64748B",
+        "dec": "#0284C7",
+        "ushape": "#DC2626",
     }
     styles = {
-        "Constant (1,400)": "--",
-        "Decreasing (Facade+Scale)": "-",
-        "U-Shape (+Basement >72%)": "-.",
+        "const": "--",
+        "dec": "-",
+        "ushape": "-.",
     }
 
     plt.rcParams["font.family"] = "sans-serif"
@@ -140,50 +198,50 @@ if __name__ == "__main__":
     texts = []
     targets_xy = []
     label_offsets = {
-        "Constant (1,400)": (0.49, 63.0),
-        "Decreasing (Facade+Scale)": (0.67, 61.0),
-        "U-Shape (+Basement >72%)": (0.68, 50.0),
+        "const": (0.49, 63.0),
+        "dec": (0.67, 61.0),
+        "ushape": (0.68, 50.0),
     }
 
     print("=== Variable Build Cost Sensitivity (Skew-Adjusted Expected Net Profit) ===")
-    for name, c_arr in models.items():
+    for key, c_arr in models.items():
+        name = TXT["models"][key]
         pi_mean = ((p_mean - c_arr) * e_prom - qpo.COST_URB_M2S * qpo.S_BRUTA) / 1e6
         k = int(np.argmax(pi_mean))
         ce_k = float(ce[k])
         oc_k = float(oc[k])
         pi_k = float(pi_mean[k])
         pi_end = float(pi_mean[-1])
-        print(f"  {name:26s}: Ce*={ce_k:.3f} (Oc={oc_k*100:.1f}%), Cost*={c_arr[k]:.0f} EUR/m2t, Peak={pi_k:.2f}M, At Ce=0.895={pi_end:.2f}M")
+        print(f"  {name:32s}: Ce*={ce_k:.3f} (Oc={oc_k*100:.1f}%), Cost*={c_arr[k]:.0f} EUR/m2t, Peak={pi_k:.2f}M, At Ce=0.895={pi_end:.2f}M")
 
-        ax1.plot(ce, c_arr, color=colors[name], ls=styles[name], lw=2.1, label=name)
-        ax2.plot(ce, pi_mean, color=colors[name], ls=styles[name], lw=2.2, label=name)
-        ax2.plot(ce_k, pi_k, "o", color=colors[name], ms=7.5, markeredgecolor="#0F172A", lw=0.8, zorder=7)
+        ax1.plot(ce, c_arr, color=colors[key], ls=styles[key], lw=2.1, label=name)
+        ax2.plot(ce, pi_mean, color=colors[key], ls=styles[key], lw=2.2, label=name)
+        ax2.plot(ce_k, pi_k, "o", color=colors[key], ms=7.5, markeredgecolor="#0F172A", lw=0.8, zorder=7)
 
-        lx, ly = label_offsets[name]
-        short_tag = "Const" if "Const" in name else ("Dec" if "Dec" in name else "U-Shape")
+        lx, ly = label_offsets[key]
+        short_tag = TXT["tags"][key]
         t = ax2.text(
             lx,
             ly,
             f"{short_tag}: Ce={ce_k:.3f} | {pi_k:.1f}M",
             fontsize=7.6,
             fontweight="bold",
-            color=colors[name],
-            bbox=dict(boxstyle="round,pad=0.2", fc="white", ec=colors[name], alpha=0.95),
+            color=colors[key],
+            bbox=dict(boxstyle="round,pad=0.2", fc="white", ec=colors[key], alpha=0.95),
             zorder=8,
         )
         texts.append(t)
-        targets_xy.append((ce_k, pi_k, colors[name]))
+        targets_xy.append((ce_k, pi_k, colors[key]))
 
     # Top panel styling
     ax1.axvline(0.785, color="#94A3B8", ls=":", lw=1.1)
-    ax1.text(0.793, 1555, "Garage\nthreshold\n(BCR>72%)", fontsize=7.5, color="#475569",
+    ax1.text(0.793, 1555, TXT["garage_box"], fontsize=7.5, color="#475569",
              bbox=dict(boxstyle="round,pad=0.16", fc="white", ec="#CBD5E1", alpha=0.92))
     ax1.set_xlim(0.46, 0.91)
     ax1.set_ylim(1150, 1820)
-    ax1.set_xlabel("Gross FAR (Ce, m2t / m2s) on 2-Floor Frontier", fontsize=9, fontweight="bold", color="#0F172A")
-    ax1.set_ylabel("Hard Build Cost (EUR/m2t)", fontsize=9, fontweight="bold", color="#0F172A")
-    ax1.set_title("1. How Build Cost Varies with Gross FAR (Np = 2)",
-                  fontsize=10.2, fontweight="bold", color="#0F172A", pad=8)
+    ax1.set_xlabel(TXT["xlabel1"], fontsize=9, fontweight="bold", color="#0F172A")
+    ax1.set_ylabel(TXT["ylabel1"], fontsize=9, fontweight="bold", color="#0F172A")
+    ax1.set_title(TXT["title1"], fontsize=10.0, fontweight="bold", color="#0F172A", pad=8)
     ax1.grid(True, ls=":", color="#CBD5E1", alpha=0.85)
     ax1.spines["top"].set_visible(False)
     ax1.spines["right"].set_visible(False)
@@ -211,10 +269,9 @@ if __name__ == "__main__":
 
     ax2.set_xlim(0.46, 0.91)
     ax2.set_ylim(14, 68)
-    ax2.set_xlabel("Gross FAR (Ce, m2t / m2s) on 2-Floor Frontier", fontsize=9, fontweight="bold", color="#0F172A")
-    ax2.set_ylabel("Expected Net Margin E[Pi] (M EUR)", fontsize=9, fontweight="bold", color="#0F172A")
-    ax2.set_title("2. Shift in Optimal Gross FAR* Under Cost Curves",
-                  fontsize=10.2, fontweight="bold", color="#0F172A", pad=8)
+    ax2.set_xlabel(TXT["xlabel2"], fontsize=9, fontweight="bold", color="#0F172A")
+    ax2.set_ylabel(TXT["ylabel2"], fontsize=9, fontweight="bold", color="#0F172A")
+    ax2.set_title(TXT["title2"], fontsize=10.0, fontweight="bold", color="#0F172A", pad=8)
     ax2.grid(True, ls=":", color="#CBD5E1", alpha=0.85)
     ax2.spines["top"].set_visible(False)
     ax2.spines["right"].set_visible(False)
@@ -222,6 +279,6 @@ if __name__ == "__main__":
 
     fig.savefig(SVG_PATH, format="svg", bbox_inches="tight", facecolor="white")
     make_svg_responsive(SVG_PATH)
-    verify_in_memory_ocr(fig, ["Const:", "Dec:", "U-Shape:", "Garage"], "fig6_cost_sensitivity")
+    verify_in_memory_ocr(fig, TXT["ocr"], "fig6_cost_sensitivity")
     plt.close(fig)
     print(f"\nGenerated SVG: {SVG_PATH}")

@@ -1,0 +1,112 @@
+\section{Modelo Normativo Base y Frontera de Eficiencia en Dos Plantas}
+\label{sec:modelo_normativo}
+
+\subsection{Parámetros de Partida y Balance Suelo--Techo}
+\label{sub:specs_sector}
+
+El ejercicio parte de un sector urbanizable residencial cuya superficie bruta viene determinada por la última cifra del DNI ($4 + 2 = 6\text{ ha}$), diferenciando en todo momento los metros cuadrados de suelo ($\text{m}^2\text{s}$) de los metros cuadrados de techo o superficie construida computable ($\text{m}^2\text{c}$). En la Tabla~\ref{tab:parametros_base} se recogen los parámetros fijos impuestos por la ficha urbanística y las dos variables de decisión seleccionadas para contrastar intensidad alta frente a intensidad baja.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Parámetros fijos del sector y equivalencia terminológica normativa.}
+  \label{tab:parametros_base}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Parámetro Legal (ES)} & \textbf{Equivalente Internacional} & \textbf{Símbolo / Fórmula} & \textbf{Valor} \\
+    \midrule
+    Superficie bruta del sector & Gross Sector Area & $S_{\text{bruta}}$ ($\text{m}^2\text{s}$) & $60.000\text{ m}^2\text{s}$ ($6\text{ ha}$) \\
+    Viario público a ceder & Street Network Cession & $S_{\text{viario}} = 0,10\,S_{\text{bruta}}$ & $6.000\text{ m}^2\text{s}$ ($10\%$) \\
+    Cesiones públicas EL/D/I & Public Open Space / Facilities & $S_{\text{cesiones}} = 0,45\,E_{\text{teórica}}$ & $45\text{ m}^2\text{s} / 100\text{ m}^2\text{c}$ \\
+    Parcela lucrativa mínima & Minimum Net Plot & $S_{\mathrm{min}}$ ($\text{m}^2\text{s}$) & $700\text{ m}^2\text{s}$ \\
+    Edificabilidad bruta & \textbf{Gross FAR} & $C_e = E_{\text{teórica}} / S_{\text{bruta}}$ & $\{1,0;\; 0,6\}\text{ m}^2\text{c}/\text{m}^2\text{s}$ \\
+    Ocupación de parcela & \textbf{BCR} (\emph{Lot Coverage}) & $C_{\text{ocup}} = S_{\text{huella}} / S_{\text{neta}}$ & $\{90\%;\; 50\%\}$ \\
+    Edificabilidad neta & \textbf{Net FAR} & $e_{\text{neta}} = E_{\text{teórica}} / S_{\text{neta}}$ & $\text{BCR} \cdot N_p$ \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}
+
+Las ecuaciones de balance territorial que rigen el sector son:
+\begin{align}
+  E_{\text{teórica}} &= S_{\text{bruta}} \cdot C_e && [\text{m}^2\text{c}] \\
+  S_{\text{neta}} &= S_{\text{bruta}} - S_{\text{viario}} - 0,45 \cdot E_{\text{teórica}} && [\text{m}^2\text{s}] \\
+  N_{\text{parcelas}} &= \left\lfloor \frac{S_{\text{neta}}}{S_{\min}} \right\rfloor, \qquad
+  N_{\text{plantas}} = \left\lceil \frac{E_{\text{teórica}}}{S_{\text{neta}} \cdot C_{\text{ocup}}} \right\rceil &&
+\end{align}
+
+\subsection{Comparativa de los Cuatro Escenarios ($S_1$--$S_4$) y Déficits en Dos Plantas}
+\label{sub:escenarios_s1_s4}
+
+Dado que las cesiones dotacionales crecen linealmente con la edificabilidad teórica ($0,45 \cdot E_{\text{teórica}}$), elevar el coeficiente $C_e$ de $0,6$ a $1,0\text{ m}^2\text{c}/\text{m}^2\text{s}$ reduce el suelo neto lucrativo disponible de $37.800\text{ m}^2\text{s}$ ($54$ parcelas exactas de $700\text{ m}^2\text{s}$) a $27.000\text{ m}^2\text{s}$ ($38$ parcelas y un resto de $400\text{ m}^2\text{s}$). En la Tabla~\ref{tab:cuatro_escenarios} y la Figura~\ref{fig:fig1_scenarios} se comparan los cuatro supuestos bajo el límite de altura de $N_p = 2$ plantas.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Resultados cuantitativos de los cuatro escenarios y déficit bajo límite de $N_p = 2$ plantas.}
+  \label{tab:cuatro_escenarios}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    \textbf{Variable Urbanística} & \textbf{Escenario 1 ($S_1$)} & \textbf{Escenario 2 ($S_2$)} & \textbf{Escenario 3 ($S_3$)} & \textbf{Escenario 4 ($S_4$)} \\
+    \midrule
+    Edificabilidad bruta ($C_e$ / Gross FAR) & $1,0\text{ m}^2\text{c}/\text{m}^2\text{s}$ & $1,0\text{ m}^2\text{c}/\text{m}^2\text{s}$ & $0,6\text{ m}^2\text{c}/\text{m}^2\text{s}$ & $0,6\text{ m}^2\text{c}/\text{m}^2\text{s}$ \\
+    Ocupación de parcela ($C_{\text{ocup}}$ / BCR) & $90\%$ & $50\%$ & $90\%$ & $50\%$ \\
+    Edificabilidad teórica ($E_{\text{teórica}}$) & $60.000\text{ m}^2\text{c}$ & $60.000\text{ m}^2\text{c}$ & $36.000\text{ m}^2\text{c}$ & $36.000\text{ m}^2\text{c}$ \\
+    Cesiones EL/D/I ($S_{\text{cesiones}}$) & $27.000\text{ m}^2\text{s}$ & $27.000\text{ m}^2\text{s}$ & $16.200\text{ m}^2\text{s}$ & $16.200\text{ m}^2\text{s}$ \\
+    Suelo neto lucrativo ($S_{\text{neta}}$) & $27.000\text{ m}^2\text{s}$ & $27.000\text{ m}^2\text{s}$ & $37.800\text{ m}^2\text{s}$ & $37.800\text{ m}^2\text{s}$ \\
+    Parcelas máximas ($N_{\text{parcelas}}$) & $\mathbf{38}$ & $\mathbf{38}$ & $\mathbf{54}$ & $\mathbf{54}$ \\
+    Plantas exactas $\to$ enteras & $2,47 \to 3$ & $4,44 \to 5$ & $1,06 \to 2$ & $1,90 \to 2$ \\
+    \midrule
+    Materializable en $2$ plantas & $48.600\text{ m}^2\text{c}$ & $27.000\text{ m}^2\text{c}$ & $36.000\text{ m}^2\text{c}$ & $36.000\text{ m}^2\text{c}$ \\
+    \textbf{Déficit de edificabilidad ($N_p = 2$)} & \textbf{$-11.400\text{ m}^2\text{c}$ ($-19\%$)} & \textbf{$-33.000\text{ m}^2\text{c}$ ($-55\%$)} & $0\%$ (Viable) & $0\%$ (Viable) \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.90\linewidth]{img/fig1_problem_and_scenarios.pdf}
+  \caption{Balance físico de suelo y volumetría vertical de los escenarios $S_1$--$S_4$ frente al tope de dos plantas.}
+  \label{fig:fig1_scenarios}
+\end{figure}
+
+\begin{tcolorbox}[jumpbox]
+\textbf{Salto Lateral $\to$ Salidas Legales del Techo No Materializable:} El análisis jurídico de si los sótanos obligatorios, semisótanos, espacios \emph{bajo cubierta} o la \emph{TAU} pueden absorber los déficits de $11.400\text{ m}^2\text{c}$ ($S_1$) y $33.000\text{ m}^2\text{c}$ ($S_2$) se desarrolla en la Subsección~\ref{sub:salidas_tau}.
+\end{tcolorbox}
+
+\subsection{Frontera Analítica de Eficiencia de Pareto en Dos Plantas}
+\label{sub:frontera_pareto}
+
+Cuando se exige agotar la edificabilidad dentro del límite estricto de $N_p \le 2$ plantas, la condición límite $E_{\text{teórica}} = 2 \cdot S_{\text{neta}} \cdot C_{\text{ocup}}$ define una curva analítica cerrada de \textbf{eficiencia de Pareto} —en el sentido formalizado en teoría del equilibrio general por los premios Nobel Kenneth Arrow y Gérard Debreu \cite{arrow1954existence}—, en la que resulta imposible incrementar el techo edificable sin aumentar la ocupación de parcela o sacrificar número de parcelas y espacios libres privados:
+
+\begin{equation}
+  E_{\text{teórica}}(C_{\text{ocup}}) = \frac{108.000\,C_{\text{ocup}}}{1 + 0,90\,C_{\text{ocup}}}, \qquad
+  C_{e,\max}(C_{\text{ocup}}) = \frac{1,8\,C_{\text{ocup}}}{1 + 0,9\,C_{\text{ocup}}}
+  \label{eq:frontera_2plantas}
+\end{equation}
+
+De la Ecuación~\eqref{eq:frontera_2plantas} se desprenden tres conclusiones operativas directas (ilustradas en las Figuras~\ref{fig:fig2_feasible} y~\ref{fig:fig3_discrete}):
+\begin{itemize}
+  \item \textbf{Inviabilidad de mantener $C_e = 1,0$:} Compensar $C_e = 1,0$ modificando únicamente la ocupación exigiría $C_{\text{ocup,req}} = \frac{60.000}{2 \times 27.000} = 111,11\% > 100\%$. Incluso al $100\%$ de ocupación (eliminando retranqueos y patios), solo caben $54.000\text{ m}^2\text{c}$ ($\text{Gross FAR} = 0,9474$ sobre la frontera acoplada con $56.842\text{ m}^2\text{c}$ y $40$ parcelas).
+  \item \textbf{Umbral de la banda $C_e > 0,90$:} La frontera cruza $C_e = 0,90$ exactamente en $C_{\text{ocup}} = 90,91\%$. Cualquier punto en la banda superior ($C_e > 0,90$) deja menos de un $10\%$ de parcela libre.
+  \item \textbf{Máximo urbanístico realista ($C_{\text{ocup}} = 90\%$):} Preservando un $10\%$ mínimo de patio o retranqueo, el techo máximo materializable en dos plantas alcanza $\text{Gross FAR}^* = 0,8950\text{ m}^2\text{c}/\text{m}^2\text{s}$ ($53.702\text{ m}^2\text{c}$ y $42$ parcelas).
+\end{itemize}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.86\linewidth]{img/fig2_feasible_space_2floors.pdf}
+  \caption{Espacio factible bajo límite de dos plantas ($N_p \le 2$) y trayectorias de ajuste para $S_1$ y $S_2$.}
+  \label{fig:fig2_feasible}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.86\linewidth]{img/fig3_discrete_and_deficits.pdf}
+  \caption{Discretización de parcelas ($S_{\mathrm{min}} = 700\text{ m}^2\text{s}$) y pérdidas de techo en dos plantas.}
+  \label{fig:fig3_discrete}
+\end{figure}
+
+\begin{tcolorbox}[jumpbox]
+\textbf{Salto Lateral $\to$ Rendimiento Físico frente a Óptimo de Mercado:} Alcanzar la cota $\text{Gross FAR} = 0,895$ maximiza los $\text{m}^2\text{c}$ edificados, pero comprime el precio unitario de venta al saturar la parcela. La determinación del óptimo económico se analiza en la Subsección~\ref{sub:cuartiles_mercado}.
+\end{tcolorbox}

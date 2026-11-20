@@ -14,6 +14,7 @@ Generates mobile-optimized fig7_vpo_mixed_opt.svg (RapidOCR verified).
 """
 
 import io
+import json
 import os
 import re
 import math
@@ -29,10 +30,58 @@ from adjustText import adjust_text
 
 import quantile_profit_optimizer as qpo
 
-# %% 0. Paths & Constants
-OUT_DIR = os.path.dirname(os.path.abspath(__file__))
-XLSX_PATH = os.path.join(OUT_DIR, "market_price_quantiles_sim.xlsx")
+# %% 0. Paths, Bilingual JSON Preamble & Constants
+LANG = os.environ.get("PLOT_LANG", "EN")  # Toggle "EN" / "ES"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUT_DIR = os.environ.get("PLOT_OUT_DIR", SCRIPT_DIR)
+XLSX_PATH = os.path.join(SCRIPT_DIR, "market_price_quantiles_sim.xlsx")
 SVG_PATH = os.path.join(OUT_DIR, "fig7_vpo_mixed_opt.svg")
+
+LABELS_EN_JSON = r"""
+{
+  "title1": "1. Unified Cost Surface (Includes VPO Underground Garage >70%)\nEven With Garage Cost, BCR_V=90% Preserves High-Margin Market Land",
+  "xlabel1": "Market Lot Coverage BCR_M (%)",
+  "ylabel1": "VPO Lot Coverage BCR_V (%)",
+  "cbar1": "E[Profit] (M EUR)",
+  "garage_line": "VPO Garage Threshold (70%)",
+  "opt_ann": "Optimum: BCR_M={oc_m:.1f}%, BCR_V=90%\nGross FAR*={ce:.3f} | {prof:.1f}M",
+  "title2": "2. Regime Shift Under Single Unified Construction Cost Curve",
+  "xlabel2": "Total Sector Gross FAR (Ce, m2t / m2s)",
+  "ylabel2": "Expected Margin (M EUR)",
+  "leg_0": "0% VPO (Market Baseline)",
+  "leg_2f": "40% VPO | 2F + Garage (BCR_V=90%)",
+  "leg_5f": "40% VPO | 5F Tower + Garage",
+  "tag_0": "No VPO",
+  "tag_5f": "5F VPO",
+  "tag_2f": "2F VPO",
+  "ocr": ["Optimum", "54.7", "44.7", "47.1", "Garage"]
+}
+"""
+
+LABELS_ES_JSON = r"""
+{
+  "title1": "1. Superficie de Coste Unificada (Incluye Garaje VPO >70%)\nAun con Sótano, BCR_V=90% Preserva el Suelo Libre de Alto Margen",
+  "xlabel1": "Ocupación Zona Libre BCR_M (%)",
+  "ylabel1": "Ocupación Zona VPO BCR_V (%)",
+  "cbar1": "E[Beneficio] (M EUR)",
+  "garage_line": "Umbral Garaje VPO (70%)",
+  "opt_ann": "Óptimo: BCR_M={oc_m:.1f}%, BCR_V=90%\nGross FAR*={ce:.3f} | {prof:.1f}M",
+  "title2": "2. Cambio de Régimen bajo Curva Única de Coste Constructivo",
+  "xlabel2": "Gross FAR Total del Sector (Ce, m2c / m2s)",
+  "ylabel2": "Margen Esperado (M EUR)",
+  "leg_0": "0% VPO (Referencia Libre)",
+  "leg_2f": "40% VPO | 2P + Garaje (BCR_V=90%)",
+  "leg_5f": "40% VPO | Torre 5P + Garaje",
+  "tag_0": "Sin VPO",
+  "tag_5f": "VPO 5P",
+  "tag_2f": "VPO 2P",
+  "ocr": ["Óptimo", "54.7", "44.7", "47.1", "Garaje"]
+}
+"""
+
+TXT = json.loads(LABELS_EN_JSON)
+if LANG.upper() == "ES":
+    TXT.update(json.loads(LABELS_ES_JSON))
 
 Z_75 = float(norm.ppf(0.75))
 
@@ -231,17 +280,17 @@ def build_fig7(p_mkt_fn, res_base, res_2f, res_5f):
     cs = ax1.contour(OM * 100.0, OV * 100.0, CE_MAT, levels=[0.50, 0.60, 0.67, 0.75], colors="#0F172A", linestyles="--", linewidths=1.0)
     ax1.clabel(cs, fmt="FAR=%.2f", fontsize=7.5, inline=True)
     ax1.axhline(70.0, color="#DC2626", ls=":", lw=1.2)
-    ax1.text(63.0, 66.2, "VPO Garage Threshold (70%)", fontsize=7.3, fontweight="bold", color="#B91C1C",
+    ax1.text(63.0, 66.2, TXT["garage_line"], fontsize=7.3, fontweight="bold", color="#B91C1C",
              bbox=dict(boxstyle="round,pad=0.14", fc="white", ec="none", alpha=0.82))
 
     cbar = fig.colorbar(cf, ax=ax1, pad=0.02)
-    cbar.set_label("E[Profit] (M EUR)", fontsize=8.2, fontweight="bold", color="#0F172A")
+    cbar.set_label(TXT["cbar1"], fontsize=8.2, fontweight="bold", color="#0F172A")
     cbar.ax.tick_params(labelsize=7.5)
 
     # Mark strict 2-floor optimum on corner BCR_V = 90%
     ax1.plot(res_2f["oc_M"] * 100.0, res_2f["oc_V"] * 100.0, "*", color="#F59E0B", ms=13, markeredgecolor="#0F172A", zorder=8)
     ax1.annotate(
-        f"Optimum: BCR_M={res_2f['oc_M']*100:.1f}%, BCR_V=90%\nGross FAR*={res_2f['Ce']:.3f} | {res_2f['Profit_MEUR']:.1f}M",
+        TXT["opt_ann"].format(oc_m=res_2f["oc_M"] * 100.0, ce=res_2f["Ce"], prof=res_2f["Profit_MEUR"]),
         xy=(res_2f["oc_M"] * 100.0, res_2f["oc_V"] * 100.0),
         xytext=(48.0, 74.0),
         fontsize=7.6,
@@ -254,10 +303,9 @@ def build_fig7(p_mkt_fn, res_base, res_2f, res_5f):
 
     ax1.set_xlim(35, 90)
     ax1.set_ylim(35, 91)
-    ax1.set_xlabel("Market Lot Coverage BCR_M (%)", fontsize=8.8, fontweight="bold", color="#0F172A")
-    ax1.set_ylabel("VPO Lot Coverage BCR_V (%)", fontsize=8.8, fontweight="bold", color="#0F172A")
-    ax1.set_title("1. Unified Cost Surface (Includes VPO Underground Garage >70%)\nEven With Garage Cost, BCR_V=90% Preserves High-Margin Market Land",
-                  fontsize=9.3, fontweight="bold", color="#0F172A", pad=8)
+    ax1.set_xlabel(TXT["xlabel1"], fontsize=8.8, fontweight="bold", color="#0F172A")
+    ax1.set_ylabel(TXT["ylabel1"], fontsize=8.8, fontweight="bold", color="#0F172A")
+    ax1.set_title(TXT["title1"], fontsize=9.1, fontweight="bold", color="#0F172A", pad=8)
 
     # --- Panel B: Expected Profit vs Gross FAR Across 3 Regimes ---
     ax2 = fig.add_subplot(gs[1])
@@ -288,14 +336,14 @@ def build_fig7(p_mkt_fn, res_base, res_2f, res_5f):
         for om, ce in zip(oc_m_sweep, ce_5f)
     ])
 
-    ax2.plot(ce_0, pi_0, color="#64748B", ls="--", lw=2.0, label="0% VPO (Market Baseline)")
-    ax2.plot(ce_2f, pi_2f, color="#DC2626", ls="-", lw=2.2, label="40% VPO | 2F + Garage (BCR_V=90%)")
-    ax2.plot(ce_5f, pi_5f, color="#0284C7", ls="-.", lw=2.2, label="40% VPO | 5F Tower + Garage")
+    ax2.plot(ce_0, pi_0, color="#64748B", ls="--", lw=2.0, label=TXT["leg_0"])
+    ax2.plot(ce_2f, pi_2f, color="#DC2626", ls="-", lw=2.2, label=TXT["leg_2f"])
+    ax2.plot(ce_5f, pi_5f, color="#0284C7", ls="-.", lw=2.2, label=TXT["leg_5f"])
 
     peaks = [
-        (res_base, "#475569", "No VPO", (0.475, 58.5)),
-        (res_5f, "#0284C7", "5F VPO", (0.745, 53.0)),
-        (res_2f, "#DC2626", "2F VPO", (0.630, 30.0)),
+        (res_base, "#475569", TXT["tag_0"], (0.475, 58.5)),
+        (res_5f, "#0284C7", TXT["tag_5f"], (0.745, 53.0)),
+        (res_2f, "#DC2626", TXT["tag_2f"], (0.630, 30.0)),
     ]
     for r, col, tag, pos in peaks:
         ax2.plot(r["Ce"], r["Profit_MEUR"], "o", color=col, ms=7.5, markeredgecolor="#0F172A", lw=0.8, zorder=7)
@@ -313,10 +361,9 @@ def build_fig7(p_mkt_fn, res_base, res_2f, res_5f):
 
     ax2.set_xlim(0.46, 0.96)
     ax2.set_ylim(16, 64)
-    ax2.set_xlabel("Total Sector Gross FAR (Ce, m2t / m2s)", fontsize=8.8, fontweight="bold", color="#0F172A")
-    ax2.set_ylabel("Expected Margin (M EUR)", fontsize=8.8, fontweight="bold", color="#0F172A")
-    ax2.set_title("2. Regime Shift Under Single Unified Construction Cost Curve",
-                  fontsize=10.0, fontweight="bold", color="#0F172A", pad=8)
+    ax2.set_xlabel(TXT["xlabel2"], fontsize=8.8, fontweight="bold", color="#0F172A")
+    ax2.set_ylabel(TXT["ylabel2"], fontsize=8.8, fontweight="bold", color="#0F172A")
+    ax2.set_title(TXT["title2"], fontsize=9.8, fontweight="bold", color="#0F172A", pad=8)
     ax2.grid(True, ls=":", color="#CBD5E1", alpha=0.85)
     ax2.spines["top"].set_visible(False)
     ax2.spines["right"].set_visible(False)
@@ -324,7 +371,7 @@ def build_fig7(p_mkt_fn, res_base, res_2f, res_5f):
 
     fig.savefig(SVG_PATH, format="svg", bbox_inches="tight", facecolor="white")
     make_svg_responsive(SVG_PATH)
-    verify_in_memory_ocr(fig, ["Optimum", "54.7", "44.7", "47.1", "Garage"], "fig7_vpo_mixed")
+    verify_in_memory_ocr(fig, TXT["ocr"], "fig7_vpo_mixed")
     plt.close(fig)
 
 

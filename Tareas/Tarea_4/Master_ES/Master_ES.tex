@@ -1,0 +1,86 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{fontspec}
+\setmainfont{Segoe UI}
+\setsansfont{Segoe UI Semibold}
+\usepackage[spanish,es-tabla,es-noquoting]{babel}
+\usepackage[a4paper,top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{parskip}
+\emergencystretch=3em
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage[skins,breakable]{tcolorbox}
+\usepackage[hyphens]{url}
+\usepackage{hyperref}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!70!black,
+  citecolor=blue!70!black,
+  urlcolor=blue!80!black,
+  pdftitle={Tarea 4: Análisis Jurídico, Económico y Territorial de un Sector Residencial en Canarias},
+  pdfauthor={Tomás González Llarena}
+}
+
+% Cajas sobrias para notas de derivación y enlaces cruzados (saltos laterales)
+\tcbset{
+  notabox/.style={
+    enhanced,
+    breakable,
+    colback=blue!3!white,
+    colframe=blue!55!black,
+    boxrule=0.7pt,
+    leftrule=3pt,
+    arc=1.5mm,
+    left=3mm, right=3mm, top=2.5mm, bottom=2.5mm
+  },
+  jumpbox/.style={
+    enhanced,
+    breakable,
+    colback=slate!4!white,
+    colframe=blue!45!black,
+    boxrule=0.5pt,
+    leftrule=3pt,
+    arc=1mm,
+    left=3mm, right=3mm, top=2mm, bottom=2mm
+  }
+}
+\definecolor{slate}{RGB}{30,41,59}
+
+% Formato de cabeceras heredado de Master_ES (Santa Cruz de Tenerife)
+\titleformat{\section}
+{\normalfont\Large\bfseries\color{blue!60!black}}{\thesection}{1em}{}
+\titleformat{\subsection}
+{\normalfont\large\bfseries\color{gray!80!black}}{\thesubsection}{1em}{}
+
+% ==============================================================================
+% ACELERADOR DE BORRADOR:
+% Descomentar para compilar únicamente un capítulo durante la revisión.
+% \includeonly{sections/05_teoria_vs_realidad_ES}
+% ==============================================================================
+
+\title{\textbf{Tarea 4: Análisis Urbanístico, Jurídico y Económico de un Sector Residencial bajo Límite de Dos Plantas}\\
+\large Contraste Normativo (\emph{Ley 4/2017} y \emph{TRLSRU}) frente a la Realidad de Santa Cruz de Tenerife}
+\author{Tomás González Llarena}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\include{sections/00_resumen_ejecutivo_ES}
+\include{sections/01_modelo_normativo_ES}
+\include{sections/02_realidad_juridica_escala_ES}
+\include{sections/03_mercado_costes_riesgo_ES}
+\include{sections/04_vpo_desacoplamiento_ES}
+\include{sections/05_teoria_vs_realidad_ES}
+\include{sections/06_bibliografia_ES}
+
+\end{document}
